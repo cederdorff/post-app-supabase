@@ -102,46 +102,38 @@ Du må gerne tage udgangspunkt i disse eksempler og kun indsætte `image` og `ca
 
 Når tabellen er klar, så lav lige et par hurtige tests i Thunder Client.
 
-Du skal bruge to ting fra Supabase:
+Du skal bruge:
 
-1. dit REST endpoint til tabellen `posts`
+1. URL'en til `posts`
 2. din `anon` eller `publishable` API key
 
-Dem finder du typisk her:
+Begge dele finder du i Supabase under:
 
 - **Project Settings** -> **API**
-- kopier din **Project URL**
-- kopier din **anon public** eller **publishable key**
 
-Dit endpoint til `posts` ser sådan ud:
+Brug denne URL:
 
 ```txt
 https://dit-project-id.supabase.co/rest/v1/posts
 ```
 
-I Thunder Client kan du oprette en request sådan her:
+I Thunder Client:
 
 1. Åbn Thunder Client i VS Code
-2. Klik på **New Request**
-3. Vælg metode, fx `GET`
-4. Indsæt URL'en til `posts`
-5. Tilføj disse headers:
+2. Opret en ny request
+3. Indsæt URL'en
+4. Tilføj disse headers:
 
 ```txt
 apikey: DIN_KEY
 Content-Type: application/json
 ```
 
-Til `POST`, `PATCH` og `DELETE` bruger du samme URL eller samme base-URL med querystring.
+Til `PATCH` og `DELETE` kan du bruge:
 
-Eksempler:
-
-- GET alle posts:
-  `https://dit-project-id.supabase.co/rest/v1/posts`
-- PATCH ét post:
-  `https://dit-project-id.supabase.co/rest/v1/posts?id=eq.1`
-- DELETE ét post:
-  `https://dit-project-id.supabase.co/rest/v1/posts?id=eq.1`
+```txt
+https://dit-project-id.supabase.co/rest/v1/posts?id=eq.1
+```
 
 Til `POST` og `PATCH` skal du også sende JSON i body, fx:
 
@@ -189,31 +181,15 @@ Tænk over:
 
 - Hvilke sider findes allerede?
 - Hvilke routes findes allerede?
-- Hvor bliver data hentet?
-- Hvor bliver formularen styret?
-- hvad `BrowserRouter` gør
-- hvad `Routes` og `Route` gør
-- hvordan `:id` i URL'en bruges senere i appen
+- Hvilken side viser alle posts?
+- Hvilken side bruges til at oprette et post?
+- Hvilke sider bruger `:id` i URL'en?
 
 ## 4. Implementer GET i HomePage
 
 Mål: Vis alle posts på forsiden.
 
-Du skal:
-
-1. Bruge `fetch(URL, { headers })`
-2. Konvertere svaret med `await response.json()`
-3. Gemme data i `posts`
-4. Vise posts i UI
-5. Kontrollere i browseren, at data faktisk bliver vist
-
-Spørgsmål:
-
-- Hvad svarer GET til i CRUD?
-- Hvorfor ligger GET-kaldet i `useEffect`?
-
-<details>
-<summary>Vejledende løsning</summary>
+Eksempel:
 
 ```jsx
 useEffect(() => {
@@ -227,11 +203,36 @@ useEffect(() => {
 }, []);
 ```
 
-</details>
+Du skal:
 
-## 5. Byg formularen i CreatePage
+1. Bruge `fetch(URL, { headers })`
+2. Konvertere svaret med `await response.json()`
+3. Gemme data i `posts` state
+4. Vise posts i UI
+5. Kontrollere i browseren, at data (`posts`) faktisk bliver vist
+
+## 5. Gør formularen controlled i CreatePage
 
 Mål: Opret et nyt post med en controlled form.
+
+Eksempel:
+
+```jsx
+const [image, setImage] = useState("");
+const [caption, setCaption] = useState("");
+
+<input
+  value={image}
+  onChange={(event) => setImage(event.target.value)}
+  required
+/>
+
+<textarea
+  value={caption}
+  onChange={(event) => setCaption(event.target.value)}
+  required
+/>
+```
 
 Du skal:
 
@@ -241,49 +242,17 @@ Du skal:
 4. Opdatere state med `onChange`
 5. Bruge `required` på felterne
 6. Bruge `event.preventDefault()` i `handleSubmit`
-7. Sørge for, at formularen er nem at læse og tydelig at udfylde
-8. Sørge for, at felterne passer til de data, der skal sendes til databasen
-
-Forklar:
-
-- hvorfor er felterne controlled?
-- hvad gør `value`?
-- hvad gør `onChange`?
-- hvorfor bruger vi `event.preventDefault()`?
-
-Eksempel:
-
-```jsx
-const [caption, setCaption] = useState("");
-
-<textarea
-  value={caption}
-  onChange={(event) => setCaption(event.target.value)}
-  required
-/>;
-```
 
 ## 6. Implementer POST i CreatePage
 
 Mål: Gem et nyt post i databasen.
-
-Kort flow:
 
 1. Brugeren udfylder formularen
 2. `handleSubmit` bliver kaldt
 3. Data sendes med `fetch`
 4. Appen navigerer tilbage til `/`
 
-Du skal:
-
-1. Lave `handleSubmit(event)`
-2. Bruge `event.preventDefault()`
-3. Sende `POST` med `fetch`
-4. Bruge `JSON.stringify(...)`
-5. Navigere tilbage til forsiden med `navigate("/")`
-
-<details>
-<summary>Vejledende løsning</summary>
+Eksempel:
 
 ```jsx
 async function handleSubmit(event) {
@@ -302,13 +271,17 @@ async function handleSubmit(event) {
 }
 ```
 
-</details>
+Du skal:
+
+1. Lave `handleSubmit(event)`
+2. Bruge `event.preventDefault()`
+3. Sende `POST` med `fetch`
+4. Bruge `JSON.stringify(...)`
+5. Navigere tilbage til forsiden med `navigate("/")`
 
 ## 7. Implementer GET og DELETE i PostDetailPage
 
 Mål: Vis et enkelt post og gør det muligt at slette det.
-
-Kort flow:
 
 1. Brugeren klikker på et post på forsiden
 2. Appen navigerer til `"/posts/:id"`
@@ -319,6 +292,20 @@ Kort flow:
 7. Appen spørger om bekræftelse med `window.confirm(...)`
 8. Ved bekræftelse sendes en DELETE-request
 9. Appen navigerer tilbage til `/`
+
+Eksempel:
+
+```jsx
+useEffect(() => {
+  async function getPost() {
+    const response = await fetch(`${URL}?id=eq.${id}`, { headers });
+    const data = await response.json();
+    setPost(data[0]);
+  }
+
+  getPost();
+}, [id]);
+```
 
 Du skal:
 
@@ -336,20 +323,9 @@ Du skal:
 7. Sende en DELETE-request
 8. Navigere tilbage til forsiden
 
-<details>
-<summary>Vejledende løsning</summary>
+Eksempel på delete:
 
 ```jsx
-useEffect(() => {
-  async function getPost() {
-    const response = await fetch(`${URL}?id=eq.${id}`, { headers });
-    const data = await response.json();
-    setPost(data[0]);
-  }
-
-  getPost();
-}, [id]);
-
 async function handleDelete() {
   const confirmed = window.confirm("Delete this post?");
 
@@ -364,13 +340,9 @@ async function handleDelete() {
 }
 ```
 
-</details>
-
 ## 8. Implementer GET og PATCH i UpdatePage
 
 Mål: Hent et eksisterende post, vis det i formularen og gem ændringer.
-
-Kort flow:
 
 1. Brugeren klikker på edit på detail-siden
 2. Appen navigerer til `"/posts/:id/update"`
@@ -381,17 +353,7 @@ Kort flow:
 7. `handleSubmit` sender en PATCH-request
 8. Appen navigerer tilbage til detail-siden
 
-Du skal:
-
-1. Bruge `id` fra `useParams()`
-2. Hente et enkelt post med querystring
-3. Sætte `image` og `caption` i state ud fra det hentede post
-4. Bruge state som `value` i formularen
-5. Sende en PATCH-request i `handleSubmit`
-6. Navigere tilbage til `"/posts/:id"`
-
-<details>
-<summary>Vejledende løsning</summary>
+Eksempel:
 
 ```jsx
 useEffect(() => {
@@ -404,7 +366,20 @@ useEffect(() => {
 
   getPost();
 }, [id]);
+```
 
+Du skal:
+
+1. Bruge `id` fra `useParams()`
+2. Hente et enkelt post med querystring
+3. Sætte `image` og `caption` i state ud fra det hentede post
+4. Bruge state som `value` i formularen
+5. Sende en PATCH-request i `handleSubmit`
+6. Navigere tilbage til `"/posts/:id"`
+
+Eksempel på submit:
+
+```jsx
 async function handleSubmit(event) {
   event.preventDefault();
 
@@ -420,8 +395,6 @@ async function handleSubmit(event) {
   navigate(`/posts/${id}`);
 }
 ```
-
-</details>
 
 ## 9. Ekstra udfordringer
 
