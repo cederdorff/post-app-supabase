@@ -1,535 +1,681 @@
-# Kom i gang med Supabase
+# RACE 10 - Øvelse: Post App med Forms & CRUD
 
-> Rasmus Cederdorff (RACE) · Senior Lecturer & Web App Developer · race@eaaa.dk
+## 0. Formål
 
----
+I denne øvelse skal I bygge en Post App i React med Supabase som backend. Fokus er på:
 
-## Indholdsfortegnelse
+- controlled forms i React
+- GET, POST, PATCH og DELETE med `fetch`
+- navigation mellem sider
+- at få det grundlæggende CRUD-flow til at virke først
 
-- [0. Opret et Supabase projekt](#0-opret-et-supabase-projekt)
-- [1. Opret en tabel (products)](#1-opret-en-tabel-products)
-- [2. Indsæt data i din tabel](#2-indsæt-data-i-din-tabel)
-- [3. REST API i Supabase](#3-rest-api-i-supabase)
-- [4. Security og Row Level Security (RLS)](#4-security-og-row-level-security-rls)
-- [5. Test i browser](#5-test-i-browser)
-- [6. Test REST API med Thunderclient](#6-test-rest-api-med-thunderclient)
-  - [6.1. READ: Hent alle produkter (GET)](#61-read-hent-alle-produkter-get)
-  - [6.2. CREATE: Opret nyt produkt (POST)](#62-create-opret-nyt-produkt-post)
-  - [6.3. UPDATE: Opdater eksisterende produkt (PATCH)](#63-update-opdater-eksisterende-produkt-patch)
-  - [6.4. DELETE: Slet eksisterende produkt (DELETE)](#64-delete-slet-eksisterende-produkt-delete)
-- [7. Filtrering & Sortering med Supabase REST](#7-filtrering--sortering-med-supabase-rest)
-  - [7.1. Syntaks](#71-syntaks)
-  - [7.2. Operatorer](#72-operatorer)
-  - [7.3. Test Filtrering](#73-test-filtrering)
-  - [7.4. Test Sortering](#74-test-sortering)
-  - [7.5. Kombiner filtrering, sortering og limit](#75-kombiner-filtrering-sortering-og-limit)
-  - [7.6. JavaScript fetch med filtrering, sortering og paginering](#76-javascript-fetch-med-filtrering-sortering-og-paginering)
+Målet er, at I ender med en lille, men gennemført CRUD-app for `posts`.
 
----
+## 1. Startprojekt
 
-## 0. Opret et Supabase projekt
+- Brug dette template repo: [post-app-supabase-template](https://github.com/cederdorff/post-app-supabase-template)
+- Opret jeres eget repository ud fra templaten
+- Hent derefter jeres eget repository ned lokalt
+- Åbn projektet i VS Code
+- Kør:
 
-- Gå til [supabase.com](https://supabase.com)
-- Klik **"Start your project"**
-- Login med GitHub — eller **"Sign up"** for at oprette konto med email og password
-- Klik **"Create a new organisation"**, udfyld felterne og klik **"Create organisation"**
-- Klik **"Create a new project"**
-  - Generér et **"Database password"** og gem det til senere brug
-  - Sørg for at **"Enable Data API"** er slået til
+```bash
+npm install
+npm run dev
+```
 
-Nu har du:
+> Vigtigt: Projektet fungerer ikke fuldt endnu. Før appen kan hente og gemme data, skal I have et Supabase-projekt, en `posts`-tabel og en korrekt `.env` fil.
 
-- En PostgreSQL database
-- Et REST API
-- API keys
+## 2. Før I starter
 
-… som vi kan tilgå fra React. Men først skal vi have noget data at arbejde med.
+I skal have:
 
----
+- et Supabase-projekt
+- en tabel med navnet `posts`
+- felterne `id`, `image` og `caption`
+- testet GET, POST, PATCH og DELETE i Thunder Client
 
-## 1. Opret en tabel (products)
+I må meget gerne bare arbejde videre i det Supabase-projekt, I allerede har fra tidligere.
 
-- I Dashboard → venstre menu → **"Table editor"**
-- Gå til **"Table Editor"** og klik **"Create Table"**
-- Angiv table name: `products`
-- Tilføj kolonner — klik **"Add column"**:
+### Opret `posts`-tabellen i Supabase
 
-Sørg for at du har følgende kolonner:
+Hvis I ikke allerede har en `posts`-tabel, så gør sådan her:
 
-**Table name: products**
+1. Åbn jeres eksisterende Supabase-projekt
+2. Gå til **Table Editor**
+3. Klik på **Create a new table**
+4. Giv tabellen navnet `posts`
+5. Sørg for at tabellen har disse kolonner:
 
 | column     | type               |
 | ---------- | ------------------ |
 | id         | int8 (primary key) |
-| created_at | timestamp          |
-| title      | text               |
-| price      | numeric            |
+| created_at | timestampz         |
 | image      | text               |
+| caption    | text               |
 
-- Klik **"Save"**
-- Nu kan du se din products table
+6. Gem tabellen
 
----
+Hvis `id` ikke autogenereres, så sørg for at `id` er sat op som primary key.
 
-## 2. Indsæt data i din tabel
+`created_at` bliver ofte oprettet automatisk af Supabase. Det er helt fint. I skal ikke bruge det aktivt i denne øvelse, men det er normalt, at det står i tabellen.
 
-Nu skal vi have indsat en masse produktdata.
+### Gør tabellen unrestricted lige nu
 
-- Find den grønne **"Insert"**-knap → **"Insert row"**
-- Indtast kun værdier for `title`, `price` og `image` — `id` og `created_at` autogenereres
-- Du kan genbruge produktdata fra:  
-  `https://raw.githubusercontent.com/cederdorff/race/refs/heads/master/data/webshop/products.json`
-- Klik **"Save"** for at gemme
-- Læg mærke til hvordan `id` og `created_at` bliver autogenereret
-- Gentag og opret 3–4 produkter
+For at gøre det nemt at teste i denne øvelse, skal tabellen være åben for requests lige nu.
 
----
+1. Gå til **Table Editor**
+2. Åbn tabellen `posts`
+3. Find **Table settings** eller menuen med de tre prikker
+4. Gå til policies / security
+5. Sæt tabellen til **unrestricted** eller slå RLS fra for `posts`
 
-## 3. REST API i Supabase
+Det er kun for at gøre øvelsen enkel. Senere kan I arbejde med sikkerhed og policies igen.
 
-_Du skal ikke gøre noget i dette step — blot læse._
+### Indsæt et par test-data
 
-Supabase bruger **PostgREST**, som automatisk eksponerer dine tabeller som REST endpoints:
+Det er en god ide at indsætte 2-3 rækker med det samme, så I har noget at vise på forsiden.
 
-| Metode | Endpoint                    | Beskrivelse              |
-| ------ | --------------------------- | ------------------------ |
-| GET    | `/rest/v1/products`         | Hent alle produkter      |
-| POST   | `/rest/v1/products`         | Opret nyt produkt        |
-| PATCH  | `/rest/v1/products?id=eq.1` | Opdater produkt med id=1 |
-| DELETE | `/rest/v1/products?id=eq.1` | Slet produkt med id=1    |
-
-Ingen serverkode nødvendig.
-
-Men før vi kan tilgå det skal vi tillade det.
-
----
-
-## 4. Security og Row Level Security (RLS)
-
-Som standard har vi ikke fri adgang til data — det skal vi slå til.
-
-Først skal du finde din Data API:
-
-- Gå til **"Integrations"** → **"Data API"** og kopiér din API URL
-- Tilføj `/rest/v1/products` i enden af din API URL, fx:  
-  `https://dit-project-id.supabase.co/rest/v1/products`
-- Prøv at køre URL'en i browseren — du vil se en fejl, fordi vi ikke bruger en API key endnu
-
-Næste trin — hent din API key:
-
-- Gå til **"Project Settings"** og vælg **"API Keys"**
-- Kopiér **"Publishable key"**
-- Tilføj `?apikey=din-lange-sb-publishable-key` i enden af din URL, så den ligner denne:
-
-```
-https://dit-project-id.supabase.co/rest/v1/products?apikey=din-lange-sb-publishable-key
-```
-
-Husk at ændre til dine egne værdier. En URL ser fx sådan ud (men brug din egen):
-
-```
-https://frbjedghkanvumtvtzrh.supabase.co/rest/v1/products?apikey=sb_publishable_CbP-FMIMbGOqg1IwlxiBkQ_mq8UOSR8
-```
-
-- Test den nu i browseren (din egen URL)
-- Du vil se et **tomt array** (`[]`) — det er fordi der stadig er opsat sikkerhed for tabellen `products`, som vi nu skal tilpasse
-
-Nu skal vi slå RLS fra:
-
-- Gå til **"Table Editor"** og åbn `products`
-- Tryk på knappen med tre dots ud for `products`
-- Vælg **"View policies"** (du kan også finde det via **"Authentication"** → **"Policies"**)
-- Vælg **"Disable RLS"** for products-tabellen
-
-> ⚠️ Vi slår Row Level Security fra for at gøre det nemt at teste. I et produktionsmiljø skal RLS være slået til og konfigureret korrekt.  
-> Senere vender vi tilbage til sikkerhed og Row Level Security.
-
----
-
-## 5. Test i browser
-
-Test nu igen din URL i browseren:
-
-```
-https://dit-project-id.supabase.co/rest/v1/products?apikey=din-lange-sb-publishable-key
-```
-
-Nu får du listen af alle dine produkter gemt i `products`-tabellen i Supabase.
-
-- Kan du se det smarte i det her?
-- Hvad kan vi bruge det her til? Den her data?
-
----
-
-## 6. Test REST API med Thunderclient
-
-**Thunderclient** er en HTTP-klient der er bygget direkte ind i VS Code. Vi bruger den til at sende rigtige HTTP-requests til Supabase og se hvad API'et svarer, inden vi skriver React-kode.
-
-### Installér Thunderclient (hvis ikke allerede du har den)
-
-1. Gå til **Extensions** i VS Code
-2. Søg efter `Thunder Client`
-3. Klik **Install**
-4. Et lyn-ikon dukker op i venstre sidebar — klik på det for at åbne Thunderclient
-
-### Opret en ny request (generel beskrivelse)
-
-Klik på **"New Request"** øverst i Thunderclient-panelet. Du får en tom request med:
-
-- Et dropdown til at vælge **HTTP-metode** (GET, POST, PATCH, DELETE …) — helt til venstre
-- Et **URL-felt** til højre for metoden — her indsætter du din endpoint-URL
-- Faner nedenunder: **Headers**, **Body**, **Query** m.fl.
-
-### Headers — bruges i alle requests
-
-Supabase kræver en API-nøgle på **alle** requests. Den sætter vi som en header:
-
-1. Klik på fanen **"Headers"**
-2. Klik **"Add Header"**
-3. Udfyld:
-   - **Name:** `apikey`
-   - **Value:** din publishable key (den lange `sb_publishable_...`-nøgle fra trin 4)
-
-> 💡 Du skal tilføje denne header i **alle fire** requests herunder. Nogle requests kræver desuden en `Content-Type`-header — det er beskrevet under hvert punkt.
-
----
-
-### 6.1. READ: Hent alle produkter (GET)
-
-GET bruges til at **hente data**. Vi sender ingen body — vi beder bare om at få alle rækker i `products`-tabellen tilbage.
-
-**Thunderclient — trin for trin:**
-
-1. Sæt metoden til **`GET`**
-2. Indsæt URL: `https://dit-project-id.supabase.co/rest/v1/products`
-3. Gå til fanen **"Headers"** og tilføj:
-   - `apikey` → din publishable key
-4. Klik den blå **"Send"**-knap
-5. I bunden / eller højre side ser du svaret — en JSON-liste med alle dine produkter
-
-**JavaScript fetch**
-
-Hvis vi skulle gøre det her i JavaScript, vil det se sådan ud — men det venter vi lige lidt med endnu!
-
-```js
-const response = await fetch("https://xyz.supabase.co/rest/v1/products", {
-  headers: {
-    apikey: "din_sb_publishable_xyz"
-  }
-});
-
-const data = await response.json();
-console.log(data);
-```
-
----
-
-### 6.2. CREATE: Opret nyt produkt (POST)
-
-POST bruges til at **oprette en ny række** i databasen. Her skal vi sende data med i requestens **body** som JSON.
-
-**Thunderclient:**
-
-_Du kan med fordel duplikere dit GET-request og arbejde videre derfra._
-
-1. Sæt metoden til **`POST`**
-2. Indsæt URL: `https://dit-project-id.supabase.co/rest/v1/products`
-3. Gå til fanen **"Headers"** og tilføj begge headers:
-   - `apikey` → din publishable key
-   - `Content-Type` → `application/json`  
-     _(Fortæller Supabase at vi sender JSON i body'en)_
-4. Gå til fanen **"Body"** → vælg **"JSON"**
-5. Indsæt dette i tekstfeltet eller definer selv et produkt med `title`, `price` og `image`:
+I må gerne tage udgangspunkt i disse eksempler og kun indsætte `image` og `caption` i Supabase:
 
 ```json
-{
-  "title": "MacBook Pro",
-  "price": 14995,
-  "image": "https://upload.wikimedia.org/wikipedia/commons/4/49/MacBook_Pro_Retina_001.jpg"
-}
-```
-
-6. Klik **"Send"** og se hvad der sker
-
-Får du statuskode **201** betyder det at alt er gået godt og produktet er oprettet.
-
-7. Kontroller at produktet er oprettet. Du kan enten køre dit foregående GET-request igen eller tjekke databasetabellen i Supabase.
-
-**JavaScript fetch:**
-
-Sådan vil det se ud i JavaScript (det venter vi også med):
-
-```js
-await fetch("https://xyz.supabase.co/rest/v1/products", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    apikey: "din_sb_publishable_xyz"
-  },
-  body: JSON.stringify({
-    title: "MacBook Pro",
-    price: 14995,
-    image: "https://upload.wikimedia.org/wikipedia/commons/4/49/MacBook_Pro_Retina_001.jpg"
-  })
-});
-```
-
----
-
-### 6.3. UPDATE: Opdater eksisterende produkt (PATCH)
-
-PATCH bruges til at **ændre en eksisterende række**. Vi skal fortælle Supabase hvilket produkt vi vil opdatere — det gør vi med en **query parameter** i URL'en: `?id=eq.1` betyder "hvor id er lig med 1". Husk at bruge det rigtige id for det produkt du vil prøve at opdatere!
-
-**Thunderclient:**
-
-_Du kan med fordel duplikere dit POST-request og arbejde videre derfra._
-
-1. Sæt metoden til **`PATCH`**
-2. Indsæt URL med id på det produkt du vil opdatere:  
-   `https://dit-project-id.supabase.co/rest/v1/products?id=eq.1`  
-   _(Skift `1` ud med et rigtigt id fra din tabel)_
-3. Gå til fanen **"Headers"** og tilføj:
-   - `apikey` → din publishable key
-   - `Content-Type` → `application/json`
-4. Gå til fanen **"Body"** → vælg **"JSON"**
-5. Indsæt kun de felter du vil ændre:
-
-```json
-{
-  "title": "MacBook Air",
-  "price": 13499
-}
-```
-
-6. Klik **"Send"** — Supabase returnerer den opdaterede række
-
-> 💡 Med PATCH sender du **kun** de felter du vil ændre — de øvrige felter i rækken forbliver uændrede.
-
-Prøv fx kun at ændre ét felt (én property):
-
-```json
-{
-  "image": "https://yi-files.yellowimages.com/products/1543000/1543101/2483828-cover.jpg"
-}
-```
-
-Og se hvad der sker.
-
-Husk at du kan teste dine ændringer med PATCH (update) ved at køre dit GET-request igen eller tjekke tabellen i Supabase.
-
-**JavaScript fetch:**
-
-```js
-const id = 1;
-
-await fetch(`https://xyz.supabase.co/rest/v1/products?id=eq.${id}`, {
-  method: "PATCH",
-  headers: {
-    "Content-Type": "application/json",
-    apikey: "din_sb_publishable_xyz"
-  },
-  body: JSON.stringify({
-    title: "MacBook Air",
-    price: 13499
-  })
-});
-```
-
----
-
-### 6.4. DELETE: Slet eksisterende produkt (DELETE)
-
-DELETE bruges til at **slette en række** fra databasen. Ligesom PATCH bruger vi en query parameter til at angive hvilken række der skal slettes. Der sendes ingen body.
-
-**Thunderclient:**
-
-_Du kan med fordel duplikere og genbruge dit PATCH-request._
-
-1. Sæt metoden til **`DELETE`**
-2. Indsæt URL med id på det produkt du vil slette:  
-   `https://dit-project-id.supabase.co/rest/v1/products?id=eq.1`  
-   _(Skift `1` ud med et rigtigt id fra din tabel)_
-3. Gå til fanen **"Headers"** og tilføj:
-   - `apikey` → din publishable key
-4. Lad **"Body"** være tom — DELETE behøver ingen data
-5. Klik **"Send"** — du får et tomt svar tilbage med statuskode `204 No Content`, hvilket betyder at det lykkedes
-6. Kontroller nu at produktet er blevet slettet ved at køre dit GET-request igen eller tjekke tabellen i Supabase
-
-> ⚠️ DELETE kan ikke fortrydes! Tjek altid at du har det rigtige `id` i URL'en inden du sender. I en rigtig app bør du bekræfte med brugeren først, fx med `window.confirm()`.
-
-**JavaScript fetch:**
-
-```js
-const id = 1;
-
-await fetch(`https://xyz.supabase.co/rest/v1/products?id=eq.${id}`, {
-  method: "DELETE",
-  headers: {
-    apikey: "din_sb_publishable_xyz"
-  }
-});
-```
-
----
-
-## 7. Filtrering & Sortering med Supabase REST
-
-Indtil nu har vi hentet **alle** rækker fra tabellen med en simpel `GET`-request. Men i praksis vil man sjældent have brug for hele datasættet — man vil måske kun hente ét bestemt produkt, produkter under en bestemt pris, eller have resultaterne sorteret.
-
-Supabase understøtter filtrering, sortering og paginering direkte via **query parameters** i URL'en. Det sker på databaseniveau, så kun de relevante rækker sendes tilbage — det er langt mere effektivt end at hente alt og filtrere i JavaScript bagefter.
-
-### 7.1. Syntaks
-
-Query parameters tilføjes i enden af URL'en efter et `?`. Har du flere parametre, adskilles de med `&`:
-
-```
-/rest/v1/products?<kolonne>=<operator>.<værdi>
-/rest/v1/products?<kolonne>=<operator>.<værdi>&<kolonne2>=<operator2>.<værdi2>
-```
-
-### 7.2. Operatorer
-
-Operatoren bestemmer _hvordan_ værdien sammenlignes med kolonnen:
-
-| Operator | Betydning                 | Eksempel             |
-| -------- | ------------------------- | -------------------- |
-| `eq`     | Lig med (equals)          | `?id=eq.1`           |
-| `neq`    | Ikke lig med              | `?id=neq.1`          |
-| `lt`     | Mindre end (less than)    | `?price=lt.1000`     |
-| `lte`    | Mindre end eller lig med  | `?price=lte.1000`    |
-| `gt`     | Større end (greater than) | `?price=gt.5000`     |
-| `gte`    | Større end eller lig med  | `?price=gte.5000`    |
-| `like`   | Mønster (case-sensitiv)   | `?title=like.Mac*`   |
-| `ilike`  | Mønster (case-insensitiv) | `?title=ilike.*mac*` |
-| `is`     | Er null / true / false    | `?image=is.null`     |
-
-> 💡 I `like` og `ilike` bruges `*` som wildcard — fx `*mac*` matcher alt der _indeholder_ "mac", mens `mac*` matcher alt der _starter med_ "mac".
-
----
-
-### 7.3. Test Filtrering
-
-Dupliker dit GET-request i Thunderclient og arbejd videre derfra.
-
-**Hent ét bestemt produkt via id:**
-
-Bruges fx når du vil hente et specifikt produkt til en detaljevisning.
-
-```
-/rest/v1/products?id=eq.1
-```
-
-**Hent produkter billigere end kr. 1.000:**
-
-Nyttigt til at filtrere på pris — fx vise "budget"-produkter.
-
-```
-/rest/v1/products?price=lt.1000
-```
-
-**Hent produkter dyrere end eller lig med kr. 5.000:**
-
-```
-/rest/v1/products?price=gte.5000
-```
-
-**Søg produkter der indeholder "mac" (case-insensitiv):**
-
-`ilike` bruges til simpel tekstsøgning. `*mac*` betyder "indeholder mac" — uanset store/små bogstaver.
-
-```
-/rest/v1/products?title=ilike.*mac*
-```
-
-Afprøv gerne med andre værdier, id'er, priser og tekststrenge. Vær sikker på at du forstår ideen, inden du fortsætter.
-
----
-
-### 7.4. Test Sortering
-
-_Dupliker evt. dit filtrerings-GET-request i Thunderclient og arbejd videre derfra._
-
-Brug `order`-parameteren til at sortere resultater. Angiv kolonnenavn efterfulgt af `.asc` (stigende) eller `.desc` (faldende):
-
-**Billigste først:**
-
-```
-/rest/v1/products?order=price.asc
-```
-
-**Dyreste først:**
-
-```
-/rest/v1/products?order=price.desc
-```
-
-Prøv også at sortere efter `title` eller `created_at`.
-
----
-
-### 7.5. Kombiner filtrering, sortering og limit
-
-Du kan kombinere flere parametre med `&`. Herunder hentes produkter under kr. 5.000, sorteret billigste først, og begrænset til maks 5 resultater:
-
-```
-/rest/v1/products?price=lt.5000&order=price.asc&limit=5
-```
-
-`limit` er praktisk til paginering eller til at undgå at hente for mange rækker på én gang.
-
-Prøv det af med forskellige værdier:
-
-```
-/rest/v1/products?price=lt.5000&order=price.asc&limit=5
-
-/rest/v1/products?price=lt.1300&order=price.asc&limit=2
-
-/rest/v1/products?price=gt.700&order=price.asc&limit=2
-
-/rest/v1/products?price=gt.700&order=price.desc&limit=2
-
-... eller noget helt andet!
-```
-
----
-
-### 7.6. JavaScript fetch med filtrering, sortering og paginering
-
-Filtrene er blot en del af URL-strengen — der er intet nyt at lære i selve `fetch`-kaldet:
-
-```js
-// Hent de 5 billigste produkter under kr. 5.000
-const response = await fetch("https://xyz.supabase.co/rest/v1/products?price=lt.5000&order=price.asc&limit=5", {
-  headers: {
-    apikey: "din_sb_publishable_xyz"
-  }
-});
-
-const data = await response.json();
-console.log(data);
-```
-
-Du kan selvfølgelig også sammensætte det med template string og variabler, hvor variablerne kunne være state-værdier, så vi dynamisk kan ændre og reagere på det fra UI:
-
-```js
-const price = 5000;
-const order = "price";
-const orderDirection = "asc";
-const limit = 5;
-
-const response = await fetch(
-  `https://xyz.supabase.co/rest/v1/products?price=lt.${price}&order=${order}.${orderDirection}&limit=${limit}`,
+[
   {
-    headers: {
-      apikey: "din_sb_publishable_xyz"
-    }
+    "caption": "Beautiful sunset at the beach",
+    "image": "https://images.unsplash.com/photo-1566241832378-917a0f30db2c?auto=format&fit=crop&w=500&q=80"
+  },
+  {
+    "caption": "Exploring the city streets of Aarhus",
+    "image": "https://images.unsplash.com/photo-1559070169-a3077159ee16?auto=format&fit=crop&w=500&q=80"
+  },
+  {
+    "caption": "Delicious food at the restaurant",
+    "image": "https://images.unsplash.com/photo-1548940740-204726a19be3?auto=format&fit=crop&w=500&q=80"
+  },
+  {
+    "caption": "Exploring the city center of Aarhus",
+    "image": "https://images.unsplash.com/photo-1612624629424-ddde915d3dc5?auto=format&fit=crop&w=500&q=80"
+  },
+  {
+    "caption": "A cozy morning with coffee",
+    "image": "https://images.unsplash.com/photo-1545319261-f3760f9dd64d?auto=format&fit=crop&w=500&q=80"
+  },
+  {
+    "caption": "Serenity of the forest",
+    "image": "https://images.unsplash.com/photo-1661505216710-32316e7b5bb3?auto=format&fit=crop&w=500&q=80"
+  },
+  {
+    "caption": "A beautiful morning in Aarhus",
+    "image": "https://images.unsplash.com/photo-1573997953524-efed43db70a0?auto=format&fit=crop&w=500&q=80"
+  },
+  {
+    "caption": "Rainbow reflections of the city of Aarhus",
+    "image": "https://images.unsplash.com/photo-1558443336-dbb3de50b8b2?auto=format&fit=crop&w=500&q=80"
   }
-);
-
-const data = await response.json();
-console.log(data);
+]
 ```
 
----
+I behøver ikke indsætte alle. 3-4 rækker er fint til at starte med.
 
-> **Dokumentation:** [supabase.com/docs](https://supabase.com/docs) · [PostgREST filtering](https://postgrest.org/en/stable/references/api/tables_views.html#horizontal-filtering)
+### Test jeres endpoint
+
+Når tabellen er klar, så lav lige et par hurtige tests i Thunder Client:
+
+- GET alle posts
+- POST et nyt post
+- Hvis I vil: prøv også PATCH eller DELETE på ét post
+
+Målet er bare at sikre, at endpointet virker, før I går videre til React-koden.
+
+Opret en `.env` fil i projektets rod:
+
+```dotenv
+VITE_SUPABASE_URL=https://dit-project-id.supabase.co/rest/v1/posts
+VITE_SUPABASE_APIKEY=din_sb_publishable_key
+```
+
+## 3. Få overblik over starteren
+
+Kig i disse filer og find `TODO`:
+
+- `src/pages/HomePage.jsx`
+- `src/pages/CreatePage.jsx`
+- `src/pages/UpdatePage.jsx`
+- `src/pages/PostDetailPage.jsx`
+- `src/components/PostForm.jsx`
+
+Tal sammen om:
+
+- Hvilke sider findes allerede?
+- Hvad er klar?
+- Hvad mangler I selv at implementere?
+
+## 4. Implementer GET i HomePage
+
+Mål: Vis alle posts på forsiden.
+
+I skal:
+
+1. Bruge `fetch(URL, { headers })`
+2. Konvertere svaret med `await response.json()`
+3. Gemme data i `posts`
+4. Vise posts i UI
+5. Kontrollere i browseren, at data faktisk bliver vist
+6. Sammenligne jeres React-kald med GET-kaldet i Thunder Client
+
+Spørgsmål:
+
+- Hvad svarer GET til i CRUD?
+- Hvorfor ligger GET-kaldet i `useEffect`?
+
+<details>
+<summary>Vejledende løsning</summary>
+
+```jsx
+useEffect(() => {
+  async function loadPosts() {
+    const response = await fetch(URL, { headers });
+    const data = await response.json();
+    setPosts(data);
+  }
+
+  loadPosts();
+}, []);
+```
+
+</details>
+
+## 5. Forstå og brug den controlled form i PostForm
+
+Mål: Forstå hvordan den eksisterende controlled form i templaten virker.
+
+Kig på `PostForm.jsx`.
+
+I starter-templaten er formularen allerede sat op som en controlled form.
+
+Det betyder, at jeres opgave her ikke er at bygge den fra bunden, men at:
+
+- læse den
+- forstå hvorfor den er controlled
+- bruge den rigtigt sammen med `onSubmit`
+
+Forklar:
+
+- hvorfor bruger vi `useState` til `image` og `caption`?
+- hvad gør `value`?
+- hvad gør `onChange`?
+- hvorfor bruger vi `event.preventDefault()`?
+
+En controlled component betyder, at inputfeltets værdi bliver styret af React state.
+
+Det vil sige:
+
+- brugeren skriver i et inputfelt
+- `onChange` bliver kaldt
+- state bliver opdateret
+- den nye state-værdi bliver vist tilbage i feltet via `value`
+
+Det er derfor, vi siger, at React “kontrollerer” feltet.
+
+I denne øvelse er både `image` og `caption` controlled inputs i templaten allerede.
+
+Det er smart i React, fordi React så hele tiden kender værdien af formularen.
+
+Det betyder:
+
+- I altid ved, hvad der står i formularen lige nu
+- det er nemt at sende data videre i `onSubmit`
+- det er nemmere at validere felter
+- det er nemmere at genbruge samme formular til både create og update
+- UI og data hænger tæt sammen, hvilket passer godt til Reacts måde at arbejde på
+
+I denne Post App er det især smart, fordi:
+
+- samme formular bruges både til create og update
+- vi gerne vil kunne sende `image` og `caption` direkte videre i `handleSubmit`
+- vi gerne vil kunne vise preview af billedet, mens brugeren skriver
+
+Jeres fokus i dette punkt er derfor:
+
+1. Kig på hvordan `image` og `caption` er bundet til state
+2. Kig på hvordan `onChange` opdaterer state
+3. Forstå hvorfor `onSubmit({ image, caption })` virker
+4. Forstå hvorfor preview af billedet opdateres, når `image` ændrer sig
+
+Kig især efter dette mønster:
+
+```jsx
+const [caption, setCaption] = useState("");
+
+<textarea value={caption} onChange={(e) => setCaption(e.target.value)} />;
+```
+
+Her er pointen:
+
+- `caption` er den aktuelle værdi
+- `value={caption}` binder state til feltet
+- `onChange` opdaterer state, når brugeren skriver
+
+## 6. Implementer POST i CreatePage
+
+Mål: Opret et nyt post i databasen.
+
+I skal:
+
+1. Lave `handleSubmit(postData)`
+2. Sende `POST` med `fetch`
+3. Bruge `JSON.stringify(postData)`
+4. Navigere tilbage til `/` ved succes
+5. Teste at et nyt post bliver gemt i databasen
+
+Kort flow:
+
+1. Brugeren udfylder formularen i `PostForm`
+2. `PostForm` kalder `onSubmit({ image, caption })`
+3. `CreatePage` modtager data i `handleSubmit(postData)`
+4. `handleSubmit` sender data videre med `fetch`
+5. Ved succes navigerer appen tilbage til forsiden
+
+Det vigtige her er:
+
+- `PostForm` står for formularen
+- `CreatePage` står for POST-requesten
+- `postData` er det objekt, I sender til Supabase
+
+<details>
+<summary>Vejledende løsning</summary>
+
+```jsx
+async function handleSubmit(postData) {
+  await fetch(URL, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(postData),
+  });
+
+  navigate("/");
+}
+```
+
+</details>
+
+## 7. Implementer GET + PATCH i UpdatePage
+
+Mål: Hent ét post og brug det som startdata i formularen.
+
+Kort flow:
+
+1. Brugeren klikker på edit på detail-siden
+2. Appen navigerer til `"/posts/:id/update"`
+3. `UpdatePage` læser `id` med `useParams()`
+4. `UpdatePage` henter ét post fra Supabase
+5. Data gives videre til `PostForm`
+6. Brugeren retter billed-URL eller caption
+7. `handleSubmit(postData)` sender en PATCH-request
+8. Ved succes navigerer appen tilbage til detail-siden
+
+I skal:
+
+1. Bruge `id` fra `useParams()`
+2. Hente ét post med querystring:
+
+```js
+?id=eq.${id}
+```
+
+3. Gemme resultatet i `post`
+4. Give `post` videre til `PostForm`
+5. Implementere PATCH i `handleSubmit`
+6. Navigere tilbage til detail-siden ved succes
+
+Det vigtige her er:
+
+- at I bruger `id` fra URL'en
+- at I henter ét post før formularen vises
+- at I sender PATCH til det rigtige post med querystring
+- at formularen får data ind som props fra `UpdatePage`
+
+Det er smart, at samme `PostForm` kan bruges igen:
+
+- i `CreatePage` bruges formularen uden eksisterende data
+- i `UpdatePage` sendes et eksisterende `post` ind som prop
+- derfor kan formularen vise de gamle værdier først og derefter lade brugeren redigere dem
+
+Spørgsmål:
+
+- Hvordan kan det lade sig gøre at bruge samme `PostForm` til både create og update?
+
+<details>
+<summary>Vejledende løsning</summary>
+
+```jsx
+useEffect(() => {
+  async function loadPost() {
+    const response = await fetch(`${URL}?id=eq.${id}`, { headers });
+    const data = await response.json();
+    setPost(data[0]);
+  }
+
+  loadPost();
+}, [id]);
+
+async function handleSubmit(postData) {
+  await fetch(`${URL}?id=eq.${id}`, {
+    method: "PATCH",
+    headers,
+    body: JSON.stringify(postData),
+  });
+
+  navigate(`/posts/${id}`);
+}
+```
+
+</details>
+
+## 8. Implementer GET + DELETE i PostDetailPage
+
+Mål: Vis ét post og gør det muligt at slette det.
+
+Kort flow:
+
+1. Brugeren klikker på et post på forsiden
+2. Appen navigerer til `"/posts/:id"`
+3. `PostDetailPage` læser `id` fra URL'en
+4. Komponenten henter ét post med GET
+5. Billede og caption bliver vist
+6. Hvis brugeren klikker delete, spørger appen om bekræftelse
+7. Ved bekræftelse sendes DELETE-requesten
+8. Ved succes navigerer appen tilbage til forsiden
+
+I skal:
+
+1. Hente ét post med GET
+2. Vise billedet og caption
+3. Lave en delete-knap
+4. Spørge brugeren med `window.confirm(...)`
+5. Sende DELETE-request
+6. Navigere tilbage til forsiden ved succes
+
+Det vigtige her er:
+
+- at I genbruger `id` fra URL'en
+- at GET og DELETE begge rammer det samme post
+- at I først sletter, når brugeren har bekræftet
+
+Det smarte her er, at detail-siden både viser og sletter det samme post ud fra samme `id`.
+
+<details>
+<summary>Vejledende løsning</summary>
+
+```jsx
+useEffect(() => {
+  async function loadPost() {
+    const response = await fetch(`${URL}?id=eq.${id}`, { headers });
+    const data = await response.json();
+    setPost(data[0]);
+  }
+
+  loadPost();
+}, [id]);
+
+async function handleDelete() {
+  const confirmed = window.confirm("Delete this post?");
+
+  if (!confirmed) return;
+
+  await fetch(`${URL}?id=eq.${id}`, {
+    method: "DELETE",
+    headers,
+  });
+
+  navigate("/");
+}
+```
+
+</details>
+
+## 9. Når det grundlæggende virker
+
+Når jeres CRUD-flow og forms virker, kan I lægge det næste lag ovenpå:
+
+- simpel validering i formularen
+- loading states
+- tom-state på forsiden
+- `try/catch`
+- simple fejlbeskeder
+- `response.ok` checks
+- disable af knapper mens requests kører
+
+I behøver ikke gøre det hele på én gang. Tag ét punkt ad gangen.
+
+### 9.1 Simpel validering i formularen
+
+Start med noget meget enkelt.
+
+Forslag:
+
+- tjek om `caption` er tom
+- stop submit hvis feltet er tomt
+- vis en kort fejltekst under feltet
+
+Det kræver, at I selv tilføjer lidt ny state i `PostForm`, fx en `captionError`.
+
+Spørg jer selv:
+
+- Hvad skal være udfyldt for at et post giver mening?
+- Hvad er den simpleste validering, der hjælper brugeren?
+
+<details>
+<summary>Vejledende løsning</summary>
+
+```jsx
+const [captionError, setCaptionError] = useState("");
+
+if (!caption.trim()) {
+  setCaptionError("Caption is required.");
+  return;
+}
+```
+
+</details>
+
+### 9.2 Loading states
+
+Når appen henter eller gemmer data, er det rart at vise, at noget er i gang.
+
+Forslag:
+
+- brug `isLoading` i sider der henter data
+- brug `isSubmitting` i create/update
+- brug `isDeleting` i detail-siden
+
+Eksempler:
+
+- `"Loading posts..."`
+- `"Loading post..."`
+- `"Saving..."`
+- `"Deleting..."`
+
+<details>
+<summary>Vejledende løsning</summary>
+
+```jsx
+const [isLoading, setIsLoading] = useState(false);
+
+setIsLoading(true);
+
+// fetch ...
+
+setIsLoading(false);
+```
+
+</details>
+
+### 9.3 Tom-state på forsiden
+
+Hvis der ikke er nogen posts endnu, skal forsiden stadig give mening.
+
+Forslag:
+
+- vis en besked når `posts.length === 0`
+- forklar kort hvad brugeren kan gøre nu
+
+Eksempel:
+
+- `"No posts yet"`
+- `"Create your first post to get started."`
+
+<details>
+<summary>Vejledende løsning</summary>
+
+```jsx
+{
+  !isLoading && !errorMessage && posts.length === 0 && (
+    <section className="empty-state">
+      <h2>No posts yet</h2>
+      <p>Create your first post to get started.</p>
+    </section>
+  );
+}
+```
+
+</details>
+
+### 9.4 `try/catch`
+
+Når I bruger `fetch`, kan noget gå galt. Derfor giver det mening at pakke jeres requests ind i `try/catch`.
+
+Forslag:
+
+```jsx
+try {
+  // fetch-kode
+} catch (error) {
+  // sæt fejlbesked i state
+}
+```
+
+Start med at tilføje `try/catch` i:
+
+- `HomePage`
+- `CreatePage`
+- `UpdatePage`
+- `PostDetailPage`
+
+<details>
+<summary>Vejledende løsning</summary>
+
+```jsx
+try {
+  const response = await fetch(URL, { headers });
+  const data = await response.json();
+  setPosts(data);
+} catch (error) {
+  setErrorMessage("Could not load posts.");
+}
+```
+
+</details>
+
+### 9.5 Simple fejlbeskeder
+
+Når noget går galt, skal brugeren have en kort besked.
+
+Forslag:
+
+- lav en `errorMessage` state
+- vis beskeden i UI hvis der er en fejl
+
+Eksempler:
+
+- `"Could not load posts."`
+- `"Could not create post."`
+- `"Could not update post."`
+- `"Could not delete post."`
+
+Målet er ikke perfekte beskeder. Målet er bare, at brugeren ikke står uden feedback.
+
+<details>
+<summary>Vejledende løsning</summary>
+
+```jsx
+const [errorMessage, setErrorMessage] = useState("");
+
+{
+  errorMessage && (
+    <p className="status-banner status-banner-error">{errorMessage}</p>
+  );
+}
+```
+
+</details>
+
+### 9.6 `response.ok`
+
+Selv hvis `fetch` lykkes teknisk, kan serveren stadig svare med en fejlstatus.
+
+Derfor kan I tjekke:
+
+```jsx
+if (!response.ok) {
+  throw new Error("Could not load posts.");
+}
+```
+
+Det gør jeres fejlflow mere tydeligt og mere robust.
+
+<details>
+<summary>Vejledende løsning</summary>
+
+```jsx
+const response = await fetch(URL, { headers });
+
+if (!response.ok) {
+  throw new Error("Could not load posts.");
+}
+
+const data = await response.json();
+```
+
+</details>
+
+### 9.7 Disable knapper mens requests kører
+
+Når en request er i gang, er det en god ide at disable relevante knapper.
+
+Forslag:
+
+- disable submit-knappen i create/update mens der gemmes
+- disable delete-knappen mens der slettes
+
+Det hjælper med at undgå dobbeltklik og forvirring.
+
+<details>
+<summary>Vejledende løsning</summary>
+
+```jsx
+<button type="submit" disabled={isSubmitting}>
+  {isSubmitting ? "Saving..." : "Create post"}
+</button>
+```
+
+</details>
+
+## 10. Refleksion
+
+Svar kort på disse spørgsmål:
+
+1. Hvad er forskellen på GET, POST, PATCH og DELETE i jeres app?
+2. Hvordan hænger controlled forms sammen med `useState`?
+3. Hvorfor er `onSubmit` og `event.preventDefault()` vigtige?
+4. Hvad var vigtigst for at få jeres forms til at virke?
+5. Hvad var sværest i øvelsen?
+
+## 11. Ekstra udfordringer
+
+Hvis I bliver hurtigt færdige:
+
+- Tilføj en besked når der ingen posts er
+- Tilføj lidt bedre fejltekst
+- Gør loading-teksterne mere tydelige
+- Undersøg hvordan man kan samle `URL` og `headers` i én fil
