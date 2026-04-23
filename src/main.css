@@ -177,7 +177,6 @@ a:hover {
   gap: 1.25em;
   padding: 1.5em;
   transition: 0.5s;
-  animation: fadeIn 0.5s;
   border-radius: 14px;
   max-width: 900px;
   border: 1px solid rgba(38, 76, 89, 0.12);
