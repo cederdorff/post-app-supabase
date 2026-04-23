@@ -2,15 +2,12 @@
   --green: rgb(38, 76, 89);
   --dark-green: rgb(9, 47, 59);
   --light-green: rgb(172, 198, 201);
-  --light-grey: #f1f1f4;
   --text-color-danger: #f44250;
   --text-color-dark: #333;
   --text-color-light: #f1f1f1;
   --white: #f1f1f1;
   --shadow-soft: 0 0 1px hsla(0, 0%, 0%, 0.2), 0 1px 2px hsla(0, 0%, 0%, 0.2);
   --shadow-card: 1px 1px 8px rgba(0, 0, 0, 0.25);
-  --radius: 10px;
-  --radius-sm: 8px;
 }
 
 html {
@@ -112,13 +109,11 @@ a:hover {
   color: var(--green);
 }
 
-.btn-secondary,
 .btn-danger {
   background-color: var(--white);
   color: var(--text-color-danger);
 }
 
-.btn-secondary:hover,
 .btn-danger:hover {
   background-color: var(--text-color-danger);
   color: var(--white);

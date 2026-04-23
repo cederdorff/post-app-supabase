@@ -39,10 +39,6 @@ export default function UpdatePage() {
     navigate(`/posts/${id}`);
   }
 
-  function handleCancel() {
-    navigate(-1);
-  }
-
   return (
     <main className="app">
       <h1 className="page-title">Update Post</h1>
@@ -57,6 +53,7 @@ export default function UpdatePage() {
               placeholder="https://..."
               value={image}
               onChange={(event) => setImage(event.target.value)}
+              required
             />
             {image && (
               <img src={image} alt="Preview" className="image-preview" />
@@ -78,13 +75,6 @@ export default function UpdatePage() {
         </div>
 
         <div className="form-actions">
-          <button
-            type="button"
-            className="btn btn-secondary"
-            onClick={handleCancel}
-          >
-            Cancel
-          </button>
           <button type="submit" className="btn btn-primary">
             Save
           </button>
