@@ -17,8 +17,8 @@ Målet er at bygge en CRUD-app, som virker.
 ## 1. Startprojekt
 
 - Brug dette template repo: [post-app-supabase-template](https://github.com/cederdorff/post-app-supabase-template)
-- Opret jeres eget repository ud fra templaten
-- Hent derefter jeres eget repository ned lokalt
+- Opret dit eget repository ud fra templaten
+- Hent derefter dit eget repository ned lokalt
 - Åbn projektet i VS Code
 - Kør:
 
@@ -181,9 +181,6 @@ useEffect(() => {
 
 Mål: Opret et nyt post med en controlled form.
 
-I denne version skal du selv arbejde direkte i `CreatePage.jsx`.
-Formularen ligger ikke i en separat komponent.
-
 Du skal:
 
 1. Lave state til `image`
@@ -192,6 +189,8 @@ Du skal:
 4. Opdatere state med `onChange`
 5. Bruge `required` på felterne
 6. Bruge `event.preventDefault()` i `handleSubmit`
+7. Sørge for, at formularen er nem at læse og tydelig at udfylde
+8. Sørge for, at felterne passer til de data, der skal sendes til databasen
 
 Forklar:
 
@@ -319,8 +318,6 @@ async function handleDelete() {
 
 Mål: Hent et eksisterende post, vis det i formularen og gem ændringer.
 
-I denne version ligger formularen også direkte i `UpdatePage.jsx`.
-
 Kort flow:
 
 1. Brugeren klikker på edit på detail-siden
@@ -374,28 +371,7 @@ async function handleSubmit(event) {
 
 </details>
 
-## 9. Mulige udvidelser
-
-Du kan godt bygge videre herfra med for eksempel:
-
-- loading states
-- empty states
-- `try/catch`
-- fejlbeskeder i UI
-- `response.ok` checks
-- disabled knapper under requests
-
-## 10. Refleksion
-
-Svar kort på disse spørgsmål:
-
-1. Hvad er forskellen på GET, POST, PATCH og DELETE i jeres app?
-2. Hvordan hænger controlled forms sammen med `useState`?
-3. Hvorfor er `value` og `onChange` vigtige i formularen?
-4. Hvorfor er `event.preventDefault()` vigtig i `handleSubmit`?
-5. Hvordan bruger appen `id` fra URL'en i detail- og update-siderne?
-
-## 11. Ekstra udfordringer
+## 9. Ekstra udfordringer
 
 Hvis du bliver hurtigt færdig, kan du for eksempel også:
 
@@ -408,3 +384,13 @@ Hvis du bliver hurtigt færdig, kan du for eksempel også:
 - saml `URL` og `headers` i en separat fil
 
 Tag gerne kun et punkt ad gangen.
+
+## 10. Refleksion
+
+Svar kort på disse spørgsmål:
+
+1. Hvad er forskellen på GET, POST, PATCH og DELETE i din app?
+2. Hvordan hænger controlled forms sammen med `useState`?
+3. Hvorfor er `value` og `onChange` vigtige i formularen?
+4. Hvorfor er `event.preventDefault()` vigtig i `handleSubmit`?
+5. Hvordan bruger appen `id` fra URL'en i detail- og update-siderne?
