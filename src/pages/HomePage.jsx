@@ -4,7 +4,7 @@ import PostCard from "../components/PostCard";
 const URL = import.meta.env.VITE_SUPABASE_URL;
 const headers = {
   apikey: import.meta.env.VITE_SUPABASE_APIKEY,
-  "Content-Type": "application/json"
+  "Content-Type": "application/json",
 };
 
 export default function HomePage() {
@@ -27,8 +27,8 @@ export default function HomePage() {
         <h1 className="page-title">Explore the latest posts</h1>
       </section>
 
-      <section className="post-list">
-        {posts.map(post => (
+      <section className="post-grid">
+        {posts.map((post) => (
           <PostCard key={post.id} post={post} />
         ))}
       </section>
