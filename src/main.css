@@ -77,49 +77,6 @@ a:hover {
   margin: 0 0 0.5em;
 }
 
-.status-msg {
-  text-align: center;
-  padding: 2rem 0;
-}
-
-.status-banner,
-.empty-state {
-  margin-bottom: 1.25em;
-  padding: 1em 1.2em;
-  border-radius: 12px;
-  box-shadow: var(--shadow-soft);
-}
-
-.status-banner {
-  font-weight: 500;
-}
-
-.status-banner-success {
-  background-color: rgba(255, 255, 255, 0.85);
-  color: var(--dark-green);
-  border: 1px solid rgba(38, 76, 89, 0.18);
-}
-
-.status-banner-error {
-  background-color: rgba(244, 66, 80, 0.1);
-  color: #8e1f2a;
-  border: 1px solid rgba(244, 66, 80, 0.18);
-}
-
-.empty-state {
-  background-color: rgba(255, 255, 255, 0.85);
-  text-align: center;
-}
-
-.empty-state h2,
-.empty-state p {
-  margin: 0;
-}
-
-.empty-state h2 {
-  margin-bottom: 0.35em;
-}
-
 .post-form,
 .post-card,
 .post-detail {
@@ -175,11 +132,6 @@ a:hover {
 
 .btn:hover {
   box-shadow: 0 0 1px hsla(0, 0%, 0%, 0.6), 0 1px 2px hsla(0, 0%, 0%, 0.2);
-}
-
-.btn:disabled {
-  cursor: not-allowed;
-  opacity: 0.7;
 }
 
 .btn:active {
@@ -304,19 +256,6 @@ a:hover {
   display: flex;
   gap: 0.5em;
   padding-top: 0.25em;
-}
-
-.form-message {
-  margin: 0;
-  font-size: 0.95rem;
-}
-
-.form-message-error {
-  color: #8e1f2a;
-}
-
-.input-error {
-  border-color: rgba(244, 66, 80, 0.5);
 }
 
 .image-preview {

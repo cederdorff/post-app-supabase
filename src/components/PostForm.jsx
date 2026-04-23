@@ -1,26 +1,14 @@
-import { useState } from "react";
 import { useNavigate } from "react-router";
 
-export default function PostForm({ onSubmit, postToUpdate, isSubmitting = false, errorMessage = "" }) {
-  const [image, setImage] = useState(postToUpdate?.image || "");
-  const [caption, setCaption] = useState(postToUpdate?.caption || "");
-  const [captionError, setCaptionError] = useState("");
-
+export default function PostForm({ onSubmit, image, caption, onImageChange, onCaptionChange }) {
   const navigate = useNavigate();
 
   async function handleSubmit(event) {
     event.preventDefault();
-
-    const trimmedCaption = caption.trim();
-    const trimmedImage = image.trim();
-
-    if (!trimmedCaption) {
-      setCaptionError("Caption is required.");
-      return;
-    }
-
-    setCaptionError("");
-    await onSubmit({ image: trimmedImage, caption: trimmedCaption });
+    await onSubmit({
+      image: image.trim(),
+      caption: caption.trim()
+    });
   }
 
   function handleCancel() {
@@ -37,7 +25,7 @@ export default function PostForm({ onSubmit, postToUpdate, isSubmitting = false,
             name="image"
             placeholder="https://..."
             value={image}
-            onChange={(e) => setImage(e.target.value)}
+            onChange={(event) => onImageChange(event.target.value)}
           />
           {image && <img src={image} alt="Preview" className="image-preview" />}
         </div>
@@ -49,29 +37,17 @@ export default function PostForm({ onSubmit, postToUpdate, isSubmitting = false,
             rows="4"
             placeholder="Write a caption for your post..."
             value={caption}
-            onChange={(e) => {
-              setCaption(e.target.value);
-              setCaptionError("");
-            }}
+            onChange={(event) => onCaptionChange(event.target.value)}
             required
-            className={captionError ? "input-error" : ""}
-            aria-invalid={Boolean(captionError)}
           />
-          {captionError && <p className="form-message form-message-error">{captionError}</p>}
         </div>
       </div>
-      {errorMessage && <p className="form-message form-message-error">{errorMessage}</p>}
       <div className="form-actions">
-        <button
-          type="button"
-          className="btn btn-secondary"
-          onClick={handleCancel}
-          disabled={isSubmitting}
-        >
+        <button type="button" className="btn btn-secondary" onClick={handleCancel}>
           Cancel
         </button>
-        <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
-          {isSubmitting ? "Saving..." : postToUpdate ? "Update post" : "Create post"}
+        <button type="submit" className="btn btn-primary">
+          Save
         </button>
       </div>
     </form>

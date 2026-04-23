@@ -10,36 +10,29 @@ const headers = {
 
 export default function CreatePage() {
   const navigate = useNavigate();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [image, setImage] = useState("");
+  const [caption, setCaption] = useState("");
 
   async function handleSubmit(postData) {
-    setIsSubmitting(true);
-    setErrorMessage("");
+    await fetch(URL, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(postData)
+    });
 
-    try {
-      const response = await fetch(URL, {
-        method: "POST",
-        headers,
-        body: JSON.stringify(postData)
-      });
-
-      if (!response.ok) {
-        throw new Error("Could not create post.");
-      }
-
-      navigate("/");
-    } catch (error) {
-      setErrorMessage(error.message || "Something went wrong while creating the post.");
-    } finally {
-      setIsSubmitting(false);
-    }
+    navigate("/");
   }
 
   return (
     <main className="app">
       <h1 className="page-title">Create Post</h1>
-      <PostForm onSubmit={handleSubmit} isSubmitting={isSubmitting} errorMessage={errorMessage} />
+      <PostForm
+        onSubmit={handleSubmit}
+        image={image}
+        caption={caption}
+        onImageChange={setImage}
+        onCaptionChange={setCaption}
+      />
     </main>
   );
 }
