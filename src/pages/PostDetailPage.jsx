@@ -10,7 +10,7 @@ const headers = {
 export default function PostDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [post, setPost] = useState(null);
+  const [post, setPost] = useState({});
 
   useEffect(() => {
     async function getPost() {
@@ -34,28 +34,21 @@ export default function PostDetailPage() {
   return (
     <main className="app">
       <h1 className="page-title">Post Details</h1>
-
-      {post && (
-        <article className="post-detail">
-          {post.image ? (
-            <img src={post.image} alt={post.caption} />
-          ) : (
-            <div className="image-placeholder large">?</div>
-          )}
-          <div className="post-detail-body">
-            <p className="post-meta">Post #{post.id}</p>
-            <p className="post-detail-caption">{post.caption}</p>
-            <div className="post-detail-actions">
-              <Link to={`/posts/${id}/update`} className="btn btn-primary">
-                Edit
-              </Link>
-              <button className="btn btn-danger" onClick={handleDelete}>
-                Delete
-              </button>
-            </div>
+      <article className="post-detail">
+        <img src={post.image} alt={post.caption} />
+        <div className="post-detail-body">
+          <p className="post-meta">Post #{post.id}</p>
+          <p className="post-detail-caption">{post.caption}</p>
+          <div className="post-detail-actions">
+            <Link to={`/posts/${id}/update`} className="btn btn-primary">
+              Edit
+            </Link>
+            <button className="btn btn-danger" onClick={handleDelete}>
+              Delete
+            </button>
           </div>
-        </article>
-      )}
+        </div>
+      </article>
     </main>
   );
 }

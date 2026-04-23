@@ -1,17 +1,15 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
-import PostForm from "../components/PostForm";
 
 const URL = import.meta.env.VITE_SUPABASE_URL;
 const headers = {
   apikey: import.meta.env.VITE_SUPABASE_APIKEY,
-  "Content-Type": "application/json"
+  "Content-Type": "application/json",
 };
 
 export default function UpdatePage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [post, setPost] = useState(null);
   const [image, setImage] = useState("");
   const [caption, setCaption] = useState("");
 
@@ -19,36 +17,79 @@ export default function UpdatePage() {
     async function getPost() {
       const response = await fetch(`${URL}?id=eq.${id}`, { headers });
       const data = await response.json();
-      setPost(data[0]);
-      setImage(data[0]?.image || "");
-      setCaption(data[0]?.caption || "");
+      setImage(data[0].image);
+      setCaption(data[0].caption);
     }
 
     getPost();
   }, [id]);
 
-  async function handleSubmit(postData) {
+  async function handleSubmit(event) {
+    event.preventDefault();
+
     await fetch(`${URL}?id=eq.${id}`, {
       method: "PATCH",
       headers,
-      body: JSON.stringify(postData)
+      body: JSON.stringify({
+        image: image.trim(),
+        caption: caption.trim(),
+      }),
     });
 
     navigate(`/posts/${id}`);
   }
 
+  function handleCancel() {
+    navigate(-1);
+  }
+
   return (
     <main className="app">
       <h1 className="page-title">Update Post</h1>
-      {post && (
-        <PostForm
-          onSubmit={handleSubmit}
-          image={image}
-          caption={caption}
-          onImageChange={setImage}
-          onCaptionChange={setCaption}
-        />
-      )}
+
+      <form className="post-form" onSubmit={handleSubmit}>
+        <div className="form-grid">
+          <div className="form-field">
+            <label htmlFor="image">Image URL</label>
+            <input
+              id="image"
+              name="image"
+              placeholder="https://..."
+              value={image}
+              onChange={(event) => setImage(event.target.value)}
+            />
+            {image && (
+              <img src={image} alt="Preview" className="image-preview" />
+            )}
+          </div>
+
+          <div className="form-field">
+            <label htmlFor="caption">Caption *</label>
+            <textarea
+              id="caption"
+              name="caption"
+              rows="4"
+              placeholder="Write a caption for your post..."
+              value={caption}
+              onChange={(event) => setCaption(event.target.value)}
+              required
+            />
+          </div>
+        </div>
+
+        <div className="form-actions">
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={handleCancel}
+          >
+            Cancel
+          </button>
+          <button type="submit" className="btn btn-primary">
+            Save
+          </button>
+        </div>
+      </form>
     </main>
   );
 }
