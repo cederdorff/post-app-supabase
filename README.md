@@ -100,7 +100,59 @@ Du må gerne tage udgangspunkt i disse eksempler og kun indsætte `image` og `ca
 
 ### Test dit endpoint
 
-Når tabellen er klar, så lav lige et par hurtige tests i Thunder Client:
+Når tabellen er klar, så lav lige et par hurtige tests i Thunder Client.
+
+Du skal bruge to ting fra Supabase:
+
+1. dit REST endpoint til tabellen `posts`
+2. din `anon` eller `publishable` API key
+
+Dem finder du typisk her:
+
+- **Project Settings** -> **API**
+- kopier din **Project URL**
+- kopier din **anon public** eller **publishable key**
+
+Dit endpoint til `posts` ser sådan ud:
+
+```txt
+https://dit-project-id.supabase.co/rest/v1/posts
+```
+
+I Thunder Client kan du oprette en request sådan her:
+
+1. Åbn Thunder Client i VS Code
+2. Klik på **New Request**
+3. Vælg metode, fx `GET`
+4. Indsæt URL'en til `posts`
+5. Tilføj disse headers:
+
+```txt
+apikey: DIN_KEY
+Content-Type: application/json
+```
+
+Til `POST`, `PATCH` og `DELETE` bruger du samme URL eller samme base-URL med querystring.
+
+Eksempler:
+
+- GET alle posts:
+  `https://dit-project-id.supabase.co/rest/v1/posts`
+- PATCH ét post:
+  `https://dit-project-id.supabase.co/rest/v1/posts?id=eq.1`
+- DELETE ét post:
+  `https://dit-project-id.supabase.co/rest/v1/posts?id=eq.1`
+
+Til `POST` og `PATCH` skal du også sende JSON i body, fx:
+
+```json
+{
+  "image": "https://example.com/photo.jpg",
+  "caption": "Mit første post"
+}
+```
+
+Når det er sat op, så test:
 
 - GET alle posts
 - POST et nyt post
@@ -118,7 +170,7 @@ VITE_SUPABASE_APIKEY=din_sb_publishable_key
 
 ## 3. Få overblik over projektet
 
-Kig i disse filer, før du går i gang:
+Kig i disse filer, før du går i gang (du skal ikke gøre noget):
 
 - `src/App.jsx`
 - `src/pages/HomePage.jsx`
