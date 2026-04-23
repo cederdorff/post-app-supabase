@@ -4,10 +4,10 @@ export default function Header() {
   return (
     <header className="site-header">
       <nav className="site-nav" aria-label="Main navigation">
-        <NavLink to="/" end className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}>
+        <NavLink to="/" className="nav-link">
           Home
         </NavLink>
-        <NavLink to="/create" className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}>
+        <NavLink to="/create" className="nav-link">
           Create Post
         </NavLink>
       </nav>
