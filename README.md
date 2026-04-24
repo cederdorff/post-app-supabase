@@ -189,6 +189,14 @@ Tænk over:
 
 Mål: Vis alle posts på forsiden.
 
+Arbejd i: `src/pages/HomePage.jsx`
+
+Find først:
+
+- `posts` state
+- `useEffect`
+- stedet i JSX hvor posts skal vises
+
 Eksempel:
 
 ```jsx
@@ -214,6 +222,20 @@ Du skal:
 ## 5. Gør formularen controlled i CreatePage
 
 Mål: Opret et nyt post med en controlled form.
+
+Et inputfelt er controlled, når dets værdi bliver styret af React state.
+Det betyder, at du bruger `useState`, giver feltet en `value`, og opdaterer state med `onChange`.
+
+Det er vigtigt her, fordi du hele tiden skal kende værdien af `image` og `caption`, så de senere kan sendes med i `handleSubmit`.
+
+Arbejd i: `src/pages/CreatePage.jsx`
+
+Find først:
+
+- formularen
+- inputfeltet til `image`
+- tekstfeltet til `caption`
+- `handleSubmit`
 
 Eksempel:
 
@@ -246,6 +268,12 @@ Du skal:
 ## 6. Implementer POST i CreatePage
 
 Mål: Gem et nyt post i databasen.
+
+Arbejd i: `src/pages/CreatePage.jsx`
+
+Skriv koden i `handleSubmit`, når formularen allerede er bundet til state.
+
+Det sker sådan her:
 
 1. Brugeren udfylder formularen
 2. `handleSubmit` bliver kaldt
@@ -283,6 +311,17 @@ Du skal:
 
 Mål: Vis et enkelt post og gør det muligt at slette det.
 
+Arbejd i: `src/pages/PostDetailPage.jsx`
+
+Find først:
+
+- `useParams()`
+- state til postet
+- `useEffect`
+- delete-knappen
+
+Det sker sådan her:
+
 1. Brugeren klikker på et post på forsiden
 2. Appen navigerer til `"/posts/:id"`
 3. `PostDetailPage` læser `id` med `useParams()`
@@ -310,12 +349,7 @@ useEffect(() => {
 Du skal:
 
 1. Bruge `useParams()` til at læse `id`
-2. Hente et post med:
-
-```js
-`${URL}?id=eq.${id}`;
-```
-
+2. Hente et post med querystring: `` `${URL}?id=eq.${id}` ``
 3. Gemme resultatet i state
 4. Vise `image` og `caption`
 5. Lave en delete-knap
@@ -344,6 +378,21 @@ async function handleDelete() {
 
 Mål: Hent et eksisterende post, vis det i formularen og gem ændringer.
 
+Formularen er stadig controlled her.
+Forskellen er, at `image` og `caption` ikke starter som tomme felter, men bliver udfyldt med data fra databasen.
+
+Arbejd i: `src/pages/UpdatePage.jsx`
+
+Find først:
+
+- `useParams()`
+- state til `image` og `caption`
+- `useEffect`
+- `handleSubmit`
+- formularfelterne
+
+Det sker sådan her:
+
 1. Brugeren klikker på edit på detail-siden
 2. Appen navigerer til `"/posts/:id/update"`
 3. `UpdatePage` læser `id` med `useParams()`
@@ -371,7 +420,7 @@ useEffect(() => {
 Du skal:
 
 1. Bruge `id` fra `useParams()`
-2. Hente et enkelt post med querystring
+2. Hente et enkelt post med querystring: `` `${URL}?id=eq.${id}` ``
 3. Sætte `image` og `caption` i state ud fra det hentede post
 4. Bruge state som `value` i formularen
 5. Sende en PATCH-request i `handleSubmit`
@@ -398,7 +447,10 @@ async function handleSubmit(event) {
 
 ## 9. Ekstra udfordringer
 
-Hvis du bliver hurtigt færdig, kan du for eksempel også:
+Hvis du bliver hurtigt færdig, eller hvis det giver mening for dig at bygge videre, kan du også arbejde med nogle af de her ting.
+
+Du behøver ikke lave det hele.
+Du kan sagtens vælge kun én del, hvis den passer godt til dit niveau eller den tid, du har.
 
 - tilføj loading states
 - tilføj en tom-state på forsiden
@@ -409,6 +461,235 @@ Hvis du bliver hurtigt færdig, kan du for eksempel også:
 - saml `URL` og `headers` i en separat fil
 
 Tag gerne kun et punkt ad gangen.
+
+Her er mere hjælp til at komme i gang:
+
+### 9.1 Loading states
+
+En loading state betyder, at du gemmer i state, om appen er i gang med at hente eller gemme data.
+
+Det er smart, fordi du så kan vise en tekst som:
+
+- `"Loading posts..."`
+- `"Loading post..."`
+- `"Saving..."`
+
+Hvis du vil prøve det i `HomePage`, kan du gøre sådan her:
+
+1. lav en state:
+
+```jsx
+const [isLoading, setIsLoading] = useState(true);
+```
+
+2. sæt `isLoading(true)` før du henter data
+3. sæt `isLoading(false)` når data er hentet
+4. vis en besked i UI mens `isLoading` er `true`
+
+Eksempel:
+
+```jsx
+const [posts, setPosts] = useState([]);
+const [isLoading, setIsLoading] = useState(true);
+
+useEffect(() => {
+  async function getPosts() {
+    setIsLoading(true);
+
+    const response = await fetch(URL, { headers });
+    const data = await response.json();
+    setPosts(data);
+
+    setIsLoading(false);
+  }
+
+  getPosts();
+}, []);
+```
+
+Og i dit return kan du fx gøre sådan her:
+
+```jsx
+{
+  isLoading && <p>Loading posts...</p>;
+}
+```
+
+Du kan bruge samme idé i:
+
+- `PostDetailPage` med fx `Loading post...`
+- `CreatePage` med fx `Saving...`
+- `UpdatePage` med fx `Saving...`
+
+### 9.2 Tom-state på forsiden
+
+En tom-state er en besked, du viser, hvis listen er tom.
+
+Det giver mening i `HomePage`, hvis `posts.length === 0`.
+
+Eksempel:
+
+```jsx
+{
+  posts.length === 0 && <p>Der er ingen posts endnu.</p>;
+}
+```
+
+Du kan også vælge kun at vise den, når du ikke loader:
+
+```jsx
+{
+  !isLoading && posts.length === 0 && <p>Der er ingen posts endnu.</p>;
+}
+```
+
+### 9.3 `try/catch`
+
+`try/catch` bruger du, når du vil fange fejl i dit fetch-kald.
+
+Det er især nyttigt, hvis du vil vise en fejlbesked i stedet for bare at få en fejl i console.
+
+Eksempel:
+
+```jsx
+try {
+  const response = await fetch(URL, { headers });
+  const data = await response.json();
+  setPosts(data);
+} catch (error) {
+  console.log(error);
+}
+```
+
+Hvis du vil gøre mere ud af det, kan du lave en state som fx:
+
+```jsx
+const [errorMessage, setErrorMessage] = useState("");
+```
+
+og så sætte en besked i `catch`.
+
+Du kan fx gøre sådan her:
+
+```jsx
+catch (error) {
+  setErrorMessage("Kunne ikke hente posts.");
+}
+```
+
+### 9.4 Simple fejlbeskeder
+
+Hvis du allerede har en `errorMessage` state, kan du vise den i UI.
+
+Det kan være en god første forbedring, fordi brugeren så får feedback, hvis noget går galt.
+
+Eksempel:
+
+```jsx
+const [errorMessage, setErrorMessage] = useState("");
+```
+
+Og i dit return:
+
+```jsx
+{
+  errorMessage && <p>{errorMessage}</p>;
+}
+```
+
+Du kan bruge samme idé i:
+
+- `HomePage`
+- `PostDetailPage`
+- `CreatePage`
+- `UpdatePage`
+
+### 9.5 `response.ok`
+
+Selvom `fetch` virker, kan serveren godt svare med en fejlstatus.
+
+Derfor kan du tjekke `response.ok`.
+
+Eksempel:
+
+```jsx
+if (!response.ok) {
+  throw new Error("Noget gik galt");
+}
+```
+
+Det giver især mening sammen med `try/catch`.
+
+Et eksempel kunne se sådan her ud:
+
+```jsx
+const response = await fetch(URL, { headers });
+
+if (!response.ok) {
+  throw new Error("Noget gik galt");
+}
+
+const data = await response.json();
+```
+
+### 9.6 Disable knapper mens requests kører
+
+Hvis du har en state som fx `isSubmitting`, kan du disable submit-knappen, mens appen gemmer.
+
+Eksempel:
+
+```jsx
+const [isSubmitting, setIsSubmitting] = useState(false);
+```
+
+I `handleSubmit` kan du sætte:
+
+```jsx
+setIsSubmitting(true);
+```
+
+og bagefter:
+
+```jsx
+setIsSubmitting(false);
+```
+
+Og i knappen:
+
+```jsx
+<button type="submit" disabled={isSubmitting}>
+  {isSubmitting ? "Saving..." : "Save"}
+</button>
+```
+
+Du kan bruge samme idé til delete-knappen med en state som fx `isDeleting`.
+
+### 9.7 Saml `URL` og `headers` i en separat fil
+
+Hvis du vil rydde lidt op, kan du samle de gentagne konstanter i én fil.
+
+Du kan fx lave en fil som:
+
+`src/lib/api.js`
+
+med noget i den her stil:
+
+```jsx
+export const URL = import.meta.env.VITE_SUPABASE_URL;
+
+export const headers = {
+  apikey: import.meta.env.VITE_SUPABASE_APIKEY,
+  "Content-Type": "application/json",
+};
+```
+
+Og derefter importere dem i dine sider:
+
+```jsx
+import { URL, headers } from "../lib/api";
+```
+
+Det er ikke nødvendigt, men det kan gøre koden mere overskuelig, når de samme ting bruges flere steder.
 
 ## 10. Refleksion
 
