@@ -55,6 +55,25 @@ a:hover {
   margin: 0 0 0.9em;
 }
 
+.status-message,
+.error-message {
+  margin: 0 0 1em;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  max-width: 900px;
+  box-shadow: var(--shadow-soft);
+}
+
+.status-message {
+  background-color: rgba(241, 241, 241, 0.85);
+  color: var(--dark-green);
+}
+
+.error-message {
+  background-color: rgba(244, 66, 80, 0.12);
+  color: #8f1f29;
+}
+
 .feed-intro {
   margin-bottom: 1.5em;
 }
@@ -123,6 +142,14 @@ a:hover {
   box-shadow:
     0 0 1px hsla(0, 0%, 0%, 0.6),
     0 1px 2px hsla(0, 0%, 0%, 0.2);
+}
+
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.65;
+  box-shadow: var(--shadow-soft);
+  transform: none;
 }
 
 .btn:active {

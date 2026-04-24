@@ -1,24 +1,43 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
-
-const URL = import.meta.env.VITE_SUPABASE_URL;
-const headers = {
-  apikey: import.meta.env.VITE_SUPABASE_APIKEY,
-  "Content-Type": "application/json",
-};
+import { URL, headers } from "../lib/api";
 
 export default function UpdatePage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [image, setImage] = useState("");
   const [caption, setCaption] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     async function getPost() {
-      const response = await fetch(`${URL}?id=eq.${id}`, { headers });
-      const data = await response.json();
-      setImage(data[0].image);
-      setCaption(data[0].caption);
+      setIsLoading(true);
+      setErrorMessage("");
+
+      try {
+        const response = await fetch(`${URL}?id=eq.${id}`, { headers });
+
+        if (!response.ok) {
+          throw new Error("Kunne ikke hente post.");
+        }
+
+        const data = await response.json();
+        const currentPost = data[0];
+
+        if (!currentPost) {
+          throw new Error("Posten blev ikke fundet.");
+        }
+
+        setImage(currentPost.image);
+        setCaption(currentPost.caption);
+      } catch (error) {
+        console.error(error);
+        setErrorMessage("Kunne ikke hente post.");
+      } finally {
+        setIsLoading(false);
+      }
     }
 
     getPost();
@@ -27,16 +46,30 @@ export default function UpdatePage() {
   async function handleSubmit(event) {
     event.preventDefault();
 
-    await fetch(`${URL}?id=eq.${id}`, {
-      method: "PATCH",
-      headers,
-      body: JSON.stringify({
-        image: image.trim(),
-        caption: caption.trim(),
-      }),
-    });
+    setIsSubmitting(true);
+    setErrorMessage("");
 
-    navigate(`/posts/${id}`);
+    try {
+      const response = await fetch(`${URL}?id=eq.${id}`, {
+        method: "PATCH",
+        headers,
+        body: JSON.stringify({
+          image: image.trim(),
+          caption: caption.trim(),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Kunne ikke opdatere post.");
+      }
+
+      navigate(`/posts/${id}`);
+    } catch (error) {
+      console.error(error);
+      setErrorMessage("Kunne ikke opdatere post.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -44,6 +77,9 @@ export default function UpdatePage() {
       <h1 className="page-title">Update Post</h1>
 
       <form className="post-form" onSubmit={handleSubmit}>
+        {isLoading && <p className="status-message">Loading post...</p>}
+        {errorMessage && <p className="error-message">{errorMessage}</p>}
+
         <div className="form-grid">
           <div className="form-field">
             <label htmlFor="image">Image URL</label>
@@ -53,6 +89,7 @@ export default function UpdatePage() {
               placeholder="https://..."
               value={image}
               onChange={(event) => setImage(event.target.value)}
+              disabled={isLoading || isSubmitting}
               required
             />
             {image && (
@@ -69,14 +106,19 @@ export default function UpdatePage() {
               placeholder="Write a caption for your post..."
               value={caption}
               onChange={(event) => setCaption(event.target.value)}
+              disabled={isLoading || isSubmitting}
               required
             />
           </div>
         </div>
 
         <div className="form-actions">
-          <button type="submit" className="btn btn-primary">
-            Save
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={isLoading || isSubmitting}
+          >
+            {isSubmitting ? "Saving..." : "Save"}
           </button>
         </div>
       </form>

@@ -1,22 +1,41 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
-
-const URL = import.meta.env.VITE_SUPABASE_URL;
-const headers = {
-  apikey: import.meta.env.VITE_SUPABASE_APIKEY,
-  "Content-Type": "application/json",
-};
+import { URL, headers } from "../lib/api";
 
 export default function PostDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [post, setPost] = useState({});
+  const [post, setPost] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     async function getPost() {
-      const response = await fetch(`${URL}?id=eq.${id}`, { headers });
-      const data = await response.json();
-      setPost(data[0]);
+      setIsLoading(true);
+      setErrorMessage("");
+
+      try {
+        const response = await fetch(`${URL}?id=eq.${id}`, { headers });
+
+        if (!response.ok) {
+          throw new Error("Kunne ikke hente post.");
+        }
+
+        const data = await response.json();
+        const currentPost = data[0];
+
+        if (!currentPost) {
+          throw new Error("Posten blev ikke fundet.");
+        }
+
+        setPost(currentPost);
+      } catch (error) {
+        console.error(error);
+        setErrorMessage("Kunne ikke hente post.");
+      } finally {
+        setIsLoading(false);
+      }
     }
 
     getPost();
@@ -27,28 +46,63 @@ export default function PostDetailPage() {
 
     if (!confirmed) return;
 
-    await fetch(`${URL}?id=eq.${id}`, { method: "DELETE", headers });
-    navigate("/");
+    setIsDeleting(true);
+    setErrorMessage("");
+
+    try {
+      const response = await fetch(`${URL}?id=eq.${id}`, {
+        method: "DELETE",
+        headers,
+      });
+
+      if (!response.ok) {
+        throw new Error("Kunne ikke slette post.");
+      }
+
+      navigate("/");
+    } catch (error) {
+      console.error(error);
+      setErrorMessage("Kunne ikke slette post.");
+      setIsDeleting(false);
+    }
   }
 
   return (
     <main className="app">
       <h1 className="page-title">Post Details</h1>
-      <article className="post-detail">
-        <img src={post.image} alt={post.caption} />
-        <div className="post-detail-body">
-          <p className="post-meta">Post #{post.id}</p>
-          <p className="post-detail-caption">{post.caption}</p>
-          <div className="post-detail-actions">
-            <Link to={`/posts/${id}/update`} className="btn btn-primary">
-              Edit
-            </Link>
-            <button className="btn btn-danger" onClick={handleDelete}>
-              Delete
-            </button>
+      {isLoading && <p className="status-message">Loading post...</p>}
+      {errorMessage && <p className="error-message">{errorMessage}</p>}
+
+      {post && !isLoading && !errorMessage && (
+        <article className="post-detail">
+          <img src={post.image} alt={post.caption} />
+          <div className="post-detail-body">
+            <p className="post-meta">Post #{post.id}</p>
+            <p className="post-detail-caption">{post.caption}</p>
+            <div className="post-detail-actions">
+              <Link
+                to={`/posts/${id}/update`}
+                className="btn btn-primary"
+                aria-disabled={isDeleting}
+                onClick={(event) => {
+                  if (isDeleting) {
+                    event.preventDefault();
+                  }
+                }}
+              >
+                Edit
+              </Link>
+              <button
+                className="btn btn-danger"
+                onClick={handleDelete}
+                disabled={isDeleting}
+              >
+                {isDeleting ? "Deleting..." : "Delete"}
+              </button>
+            </div>
           </div>
-        </div>
-      </article>
+        </article>
+      )}
     </main>
   );
 }
