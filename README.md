@@ -457,7 +457,7 @@ Du kan sagtens vælge kun én del, hvis den passer godt til dit niveau eller den
 - tilføj `try/catch`
 - tilføj simple fejlbeskeder
 - tilføj `response.ok` checks
-- disable knapper mens requests kører
+- deaktiver knapper mens requests kører
 - saml `URL` og `headers` i en separat fil
 
 Tag gerne kun et punkt ad gangen.
@@ -632,9 +632,9 @@ if (!response.ok) {
 const data = await response.json();
 ```
 
-### 9.6 Disable knapper mens requests kører
+### 9.6 Deaktiver knapper mens requests kører
 
-Hvis du har en state som fx `isSubmitting`, kan du disable submit-knappen, mens appen gemmer.
+Hvis du har en state som fx `isSubmitting`, kan du deaktivere submit-knappen, mens appen gemmer.
 
 Eksempel:
 
