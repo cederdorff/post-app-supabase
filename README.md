@@ -170,6 +170,8 @@ Kig i disse filer, før du går i gang (du skal ikke gøre noget):
 - `src/pages/PostDetailPage.jsx`
 - `src/pages/UpdatePage.jsx`
 
+Der er `TODO` kommentarer i starterkoden, som viser de vigtigste steder at arbejde.
+
 Appen bruger disse routes:
 
 - `/` viser alle posts
