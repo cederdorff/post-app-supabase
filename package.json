@@ -1,6 +1,6 @@
 {
   "name": "react-supabase-products",
-  "base": "/react-supabase-products/",
+  "base": "/post-app-supabase/",
   "private": true,
   "version": "0.0.0",
   "type": "module",
