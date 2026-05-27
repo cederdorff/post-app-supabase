@@ -2,7 +2,7 @@
 name: Deploy static content to Pages
 
 on:
-  # Runs on pushes targeting the main branch
+  # Runs on pushes targeting the main branch (you can change this to your default branch)
   push:
     branches: ["main"]
   # Allows you to run this workflow manually from the Actions tab
