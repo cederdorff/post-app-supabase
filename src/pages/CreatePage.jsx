@@ -1,70 +1,35 @@
-import { useState } from "react";
-import { useNavigate } from "react-router";
-
-const URL = import.meta.env.VITE_SUPABASE_URL;
-const headers = {
-  apikey: import.meta.env.VITE_SUPABASE_APIKEY,
-  "Content-Type": "application/json",
-};
+import { useNavigate, useSearchParams } from "react-router";
+import PageHero from "../components/PageHero";
+import PostForm from "../components/PostForm";
+import { createPost } from "../lib/postsApi";
 
 export default function CreatePage() {
   const navigate = useNavigate();
-  const [image, setImage] = useState("");
-  const [caption, setCaption] = useState("");
+  const [searchParams] = useSearchParams();
+  const prefilledCaption = searchParams.get("caption") ?? "";
 
-  async function handleSubmit(event) {
-    event.preventDefault();
-
-    await fetch(URL, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({
-        image: image.trim(),
-        caption: caption.trim(),
-      }),
-    });
-
+  async function handleSubmit(post) {
+    await createPost(post);
     navigate("/");
   }
 
   return (
-    <main className="app">
-      <h1 className="page-title">Create Post</h1>
-      <form className="post-form" onSubmit={handleSubmit}>
-        <div className="form-grid">
-          <div className="form-field">
-            <label htmlFor="image">Image URL</label>
-            <input
-              id="image"
-              name="image"
-              placeholder="https://..."
-              value={image}
-              onChange={(event) => setImage(event.target.value)}
-              required
-            />
-            {image && <img src={image} alt="Preview" className="image-preview" />}
-          </div>
+    <main className="performative-page-shell">
+      <PageHero
+        banner="Create flow is ready"
+        eyebrow="Create"
+        statusColor="#38bdf8"
+        title="Compose your next post"
+        subtitle="Add an image URL and a caption. The preview updates before you save."
+      />
 
-          <div className="form-field">
-            <label htmlFor="caption">Caption *</label>
-            <textarea
-              id="caption"
-              name="caption"
-              rows="4"
-              placeholder="Write a caption for your post..."
-              value={caption}
-              onChange={(event) => setCaption(event.target.value)}
-              required
-            />
-          </div>
-        </div>
-
-        <div className="form-actions">
-          <button type="submit" className="btn btn-primary">
-            Save
-          </button>
-        </div>
-      </form>
+      <PostForm
+        initialCaption={prefilledCaption}
+        submitLabel="Save Post"
+        cancelLabel="Cancel"
+        cancelTo="/"
+        onSubmit={handleSubmit}
+      />
     </main>
   );
 }

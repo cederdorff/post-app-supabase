@@ -1,85 +1,88 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router";
-
-const URL = import.meta.env.VITE_SUPABASE_URL;
-const headers = {
-  apikey: import.meta.env.VITE_SUPABASE_APIKEY,
-  "Content-Type": "application/json",
-};
+import { useCallback, useEffect, useState } from "react";
+import { Link, useParams, useNavigate } from "react-router";
+import { Button } from "performative-ui";
+import PageHero from "../components/PageHero";
+import PostForm from "../components/PostForm";
+import StatusPanel from "../components/StatusPanel";
+import { getPost, updatePost } from "../lib/postsApi";
 
 export default function UpdatePage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [image, setImage] = useState("");
-  const [caption, setCaption] = useState("");
+  const [post, setPost] = useState(null);
+  const [status, setStatus] = useState("loading");
+  const [errorMessage, setErrorMessage] = useState("");
 
-  useEffect(() => {
-    async function getPost() {
-      const response = await fetch(`${URL}?id=eq.${id}`, { headers });
-      const data = await response.json();
-      setImage(data[0].image);
-      setCaption(data[0].caption);
+  const loadPost = useCallback(async () => {
+    setStatus("loading");
+    setErrorMessage("");
+
+    try {
+      const data = await getPost(id);
+
+      if (!data) {
+        setStatus("not-found");
+        return;
+      }
+
+      setPost(data);
+      setStatus("success");
+    } catch (error) {
+      setErrorMessage(error.message || "The post could not be loaded.");
+      setStatus("error");
     }
-
-    getPost();
   }, [id]);
 
-  async function handleSubmit(event) {
-    event.preventDefault();
+  useEffect(() => {
+    loadPost();
+  }, [loadPost]);
 
-    await fetch(`${URL}?id=eq.${id}`, {
-      method: "PATCH",
-      headers,
-      body: JSON.stringify({
-        image: image.trim(),
-        caption: caption.trim(),
-      }),
-    });
+  async function handleSubmit(updatedPost) {
+    await updatePost(id, updatedPost);
 
     navigate(`/posts/${id}`);
   }
 
   return (
-    <main className="app">
-      <h1 className="page-title">Update Post</h1>
+    <main className="performative-page-shell">
+      <PageHero
+        banner="Edit flow is loaded"
+        eyebrow="Update"
+        statusColor="#facc15"
+        title="Update your post"
+        subtitle="Review the current image and caption before saving changes."
+      />
 
-      <form className="post-form" onSubmit={handleSubmit}>
-        <div className="form-grid">
-          <div className="form-field">
-            <label htmlFor="image">Image URL</label>
-            <input
-              id="image"
-              name="image"
-              placeholder="https://..."
-              value={image}
-              onChange={(event) => setImage(event.target.value)}
-              required
-            />
-            {image && (
-              <img src={image} alt="Preview" className="image-preview" />
-            )}
-          </div>
+      {status === "loading" && <StatusPanel title="Loading post">Fetching the current values.</StatusPanel>}
 
-          <div className="form-field">
-            <label htmlFor="caption">Caption *</label>
-            <textarea
-              id="caption"
-              name="caption"
-              rows="4"
-              placeholder="Write a caption for your post..."
-              value={caption}
-              onChange={(event) => setCaption(event.target.value)}
-              required
-            />
-          </div>
-        </div>
+      {status === "error" && (
+        <StatusPanel tone="danger" title="Could not load post" actionLabel="Try again" onAction={loadPost}>
+          {errorMessage}
+        </StatusPanel>
+      )}
 
-        <div className="form-actions">
-          <button type="submit" className="btn btn-primary">
-            Save
-          </button>
-        </div>
-      </form>
+      {status === "not-found" && (
+        <StatusPanel tone="warning" title="Post not found" actionLabel="Back to feed" actionTo="/">
+          There is no post with id {id}.
+        </StatusPanel>
+      )}
+
+      {status === "success" && post && (
+        <PostForm
+          initialImage={post.image}
+          initialCaption={post.caption}
+          submitLabel="Save Changes"
+          cancelLabel="Back to Details"
+          cancelTo={`/posts/${id}`}
+          onSubmit={handleSubmit}
+        />
+      )}
+
+      <div className="page-back-row">
+        <Button as={Link} to="/" variant="ghost" size="sm">
+          Back to Feed
+        </Button>
+      </div>
     </main>
   );
 }
