@@ -1,14 +1,18 @@
+import { useState } from "react";
 import { Link } from "react-router";
 import { GlassCard } from "performative-ui";
 
 export default function PostCard({ post }) {
   const caption = post.caption || "Untitled post";
+  const imageUrl = post.image?.trim();
+  const [failedImageUrl, setFailedImageUrl] = useState("");
+  const showImage = imageUrl && failedImageUrl !== imageUrl;
 
   return (
     <Link to={`/posts/${post.id}`} className="post-card-link">
       <GlassCard className="post-card" breathing glowOnHover>
-        {post.image ? (
-          <img src={post.image} alt={caption} />
+        {showImage ? (
+          <img src={imageUrl} alt={caption} onError={() => setFailedImageUrl(imageUrl)} />
         ) : (
           <div className="post-card-placeholder">No image</div>
         )}

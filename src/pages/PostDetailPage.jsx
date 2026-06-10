@@ -10,9 +10,11 @@ export default function PostDetailPage() {
   const navigate = useNavigate();
   const [post, setPost] = useState(null);
   const [status, setStatus] = useState("loading");
+  const [loadedId, setLoadedId] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [deleteError, setDeleteError] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
+  const [failedImageUrl, setFailedImageUrl] = useState("");
 
   const loadPost = useCallback(async () => {
     setStatus("loading");
@@ -22,21 +24,59 @@ export default function PostDetailPage() {
       const data = await getPost(id);
 
       if (!data) {
+        setPost(null);
+        setLoadedId(id);
         setStatus("not-found");
         return;
       }
 
       setPost(data);
+      setLoadedId(id);
       setStatus("success");
     } catch (error) {
+      setPost(null);
+      setLoadedId(id);
       setErrorMessage(error.message || "The post could not be loaded.");
       setStatus("error");
     }
   }, [id]);
 
   useEffect(() => {
-    loadPost();
-  }, [loadPost]);
+    let ignore = false;
+
+    async function loadInitialPost() {
+      try {
+        const data = await getPost(id);
+
+        if (ignore) return;
+
+        if (!data) {
+          setPost(null);
+          setLoadedId(id);
+          setStatus("not-found");
+          return;
+        }
+
+        setPost(data);
+        setLoadedId(id);
+        setErrorMessage("");
+        setStatus("success");
+      } catch (error) {
+        if (ignore) return;
+
+        setPost(null);
+        setLoadedId(id);
+        setErrorMessage(error.message || "The post could not be loaded.");
+        setStatus("error");
+      }
+    }
+
+    loadInitialPost();
+
+    return () => {
+      ignore = true;
+    };
+  }, [id]);
 
   async function handleDelete() {
     const confirmed = window.confirm("Delete this post?");
@@ -55,6 +95,11 @@ export default function PostDetailPage() {
     }
   }
 
+  const currentStatus = loadedId === id ? status : "loading";
+  const currentPost = loadedId === id ? post : null;
+  const imageUrl = currentPost?.image?.trim();
+  const showImage = imageUrl && failedImageUrl !== imageUrl;
+
   return (
     <main className="performative-page-shell">
       <PageHero
@@ -69,31 +114,35 @@ export default function PostDetailPage() {
         subtitle="Inspect the record, make edits, or delete it from Supabase."
       />
 
-      {status === "loading" && <StatusPanel title="Loading post">Fetching the selected record.</StatusPanel>}
+      {currentStatus === "loading" && <StatusPanel title="Loading post">Fetching the selected record.</StatusPanel>}
 
-      {status === "error" && (
+      {currentStatus === "error" && (
         <StatusPanel tone="danger" title="Could not load post" actionLabel="Try again" onAction={loadPost}>
           {errorMessage}
         </StatusPanel>
       )}
 
-      {status === "not-found" && (
+      {currentStatus === "not-found" && (
         <StatusPanel tone="warning" title="Post not found" actionLabel="Back to feed" actionTo="/">
           There is no post with id {id}.
         </StatusPanel>
       )}
 
-      {status === "success" && post && (
+      {currentStatus === "success" && currentPost && (
         <GlassCard className="post-detail" breathing>
-          {post.image ? (
-            <img src={post.image} alt={post.caption || "Post image"} />
+          {showImage ? (
+            <img
+              src={imageUrl}
+              alt={currentPost.caption || "Post image"}
+              onError={() => setFailedImageUrl(imageUrl)}
+            />
           ) : (
             <div className="post-detail-placeholder">No image</div>
           )}
 
           <div className="post-detail-body">
-            <p className="post-meta">Post #{post.id}</p>
-            <p className="post-detail-caption">{post.caption}</p>
+            <p className="post-meta">Post #{currentPost.id}</p>
+            <p className="post-detail-caption">{currentPost.caption}</p>
 
             {deleteError && (
               <p className="form-message" role="alert">

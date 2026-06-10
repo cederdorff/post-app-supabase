@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router";
 import { Button, GlassCard } from "performative-ui";
 
@@ -15,13 +15,6 @@ export default function PostForm({
   const [previewFailed, setPreviewFailed] = useState(false);
   const [formError, setFormError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  useEffect(() => {
-    setImage(initialImage);
-    setCaption(initialCaption);
-    setPreviewFailed(false);
-    setFormError("");
-  }, [initialCaption, initialImage]);
 
   async function handleSubmit(event) {
     event.preventDefault();

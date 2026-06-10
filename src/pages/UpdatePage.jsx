@@ -11,6 +11,7 @@ export default function UpdatePage() {
   const navigate = useNavigate();
   const [post, setPost] = useState(null);
   const [status, setStatus] = useState("loading");
+  const [loadedId, setLoadedId] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
 
   const loadPost = useCallback(async () => {
@@ -21,27 +22,68 @@ export default function UpdatePage() {
       const data = await getPost(id);
 
       if (!data) {
+        setPost(null);
+        setLoadedId(id);
         setStatus("not-found");
         return;
       }
 
       setPost(data);
+      setLoadedId(id);
       setStatus("success");
     } catch (error) {
+      setPost(null);
+      setLoadedId(id);
       setErrorMessage(error.message || "The post could not be loaded.");
       setStatus("error");
     }
   }, [id]);
 
   useEffect(() => {
-    loadPost();
-  }, [loadPost]);
+    let ignore = false;
+
+    async function loadInitialPost() {
+      try {
+        const data = await getPost(id);
+
+        if (ignore) return;
+
+        if (!data) {
+          setPost(null);
+          setLoadedId(id);
+          setStatus("not-found");
+          return;
+        }
+
+        setPost(data);
+        setLoadedId(id);
+        setErrorMessage("");
+        setStatus("success");
+      } catch (error) {
+        if (ignore) return;
+
+        setPost(null);
+        setLoadedId(id);
+        setErrorMessage(error.message || "The post could not be loaded.");
+        setStatus("error");
+      }
+    }
+
+    loadInitialPost();
+
+    return () => {
+      ignore = true;
+    };
+  }, [id]);
 
   async function handleSubmit(updatedPost) {
     await updatePost(id, updatedPost);
 
     navigate(`/posts/${id}`);
   }
+
+  const currentStatus = loadedId === id ? status : "loading";
+  const currentPost = loadedId === id ? post : null;
 
   return (
     <main className="performative-page-shell">
@@ -53,24 +95,25 @@ export default function UpdatePage() {
         subtitle="Review the current image and caption before saving changes."
       />
 
-      {status === "loading" && <StatusPanel title="Loading post">Fetching the current values.</StatusPanel>}
+      {currentStatus === "loading" && <StatusPanel title="Loading post">Fetching the current values.</StatusPanel>}
 
-      {status === "error" && (
+      {currentStatus === "error" && (
         <StatusPanel tone="danger" title="Could not load post" actionLabel="Try again" onAction={loadPost}>
           {errorMessage}
         </StatusPanel>
       )}
 
-      {status === "not-found" && (
+      {currentStatus === "not-found" && (
         <StatusPanel tone="warning" title="Post not found" actionLabel="Back to feed" actionTo="/">
           There is no post with id {id}.
         </StatusPanel>
       )}
 
-      {status === "success" && post && (
+      {currentStatus === "success" && currentPost && (
         <PostForm
-          initialImage={post.image}
-          initialCaption={post.caption}
+          key={currentPost.id}
+          initialImage={currentPost.image}
+          initialCaption={currentPost.caption}
           submitLabel="Save Changes"
           cancelLabel="Back to Details"
           cancelTo={`/posts/${id}`}

@@ -7,7 +7,6 @@ import {
   FloatingSparkles,
   GradientText,
   PromptHero,
-  StatCounter,
   StatusDot,
   StickyBanner,
   TokenStream,
@@ -38,8 +37,30 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    loadPosts();
-  }, [loadPosts]);
+    let ignore = false;
+
+    async function loadInitialPosts() {
+      try {
+        const data = await listPosts();
+
+        if (ignore) return;
+
+        setPosts(data);
+        setStatus("success");
+      } catch (error) {
+        if (ignore) return;
+
+        setErrorMessage(error.message || "The feed could not be loaded.");
+        setStatus("error");
+      }
+    }
+
+    loadInitialPosts();
+
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   function handlePromptSubmit(value) {
     if (!value.trim()) return;
@@ -81,7 +102,7 @@ export default function HomePage() {
         <div className="performative-feed-header">
           <h2>Live Feed</h2>
           <p>
-            <StatusDot /> <StatCounter target={posts.length} /> active posts
+            <StatusDot /> {posts.length} active posts
           </p>
         </div>
 
