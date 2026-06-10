@@ -11,18 +11,15 @@ export default function PostCard({ post }) {
   return (
     <Link to={`/posts/${post.id}`} className="post-card-link">
       <GlassCard className="post-card" breathing glowOnHover>
-        <div className="post-card-media">
-          {showImage ? (
-            <img src={imageUrl} alt={caption} onError={() => setFailedImageUrl(imageUrl)} />
-          ) : (
-            <div className="post-card-placeholder">No image</div>
-          )}
-          <span className="post-card-id">Post #{post.id}</span>
-        </div>
+        {showImage ? (
+          <img src={imageUrl} alt={caption} onError={() => setFailedImageUrl(imageUrl)} />
+        ) : (
+          <div className="post-card-placeholder">No image</div>
+        )}
 
         <div className="post-card-body">
+          <p className="post-card-id">Post #{post.id}</p>
           <GlassCard.Title>{caption}</GlassCard.Title>
-          <span className="post-card-link-label">Open record</span>
         </div>
       </GlassCard>
     </Link>

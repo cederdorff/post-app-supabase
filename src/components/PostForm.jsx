@@ -44,22 +44,21 @@ export default function PostForm({
   }
 
   const hasPreview = image.trim().length > 0 && !previewFailed;
-
   const previewCaption = caption.trim() || "Your caption will appear here.";
 
   return (
-    <GlassCard className="post-form-card post-composer" breathing>
+    <GlassCard className="post-form-card" breathing>
       <form className="post-form" onSubmit={handleSubmit}>
-        <div className="composer-layout">
-          <div className="composer-controls">
+        <div className="post-form-layout">
+          <div className="form-grid">
             <div className="form-field">
               <label htmlFor="image">Image URL</label>
               <input
-              id="image"
-              name="image"
-              placeholder="https://..."
-              value={image}
-              onChange={handleImageChange}
+                id="image"
+                name="image"
+                placeholder="https://..."
+                value={image}
+                onChange={handleImageChange}
                 required
               />
             </div>
@@ -78,7 +77,7 @@ export default function PostForm({
             </div>
           </div>
 
-          <aside className="composer-preview" aria-label="Post preview">
+          <aside className="post-preview" aria-label="Post preview">
             <div className={`image-preview-frame ${hasPreview ? "" : "image-preview-frame-empty"}`}>
               {hasPreview ? (
                 <img
@@ -92,28 +91,26 @@ export default function PostForm({
               )}
             </div>
 
-            <div className="composer-preview-body">
-              <span>Preview</span>
+            <div className="post-preview-body">
+              <p className="post-card-id">Preview</p>
               <strong>{previewCaption}</strong>
             </div>
           </aside>
         </div>
 
-        <div className="composer-footer">
-          {formError && (
-            <p className="form-message" role="alert">
-              {formError}
-            </p>
-          )}
+        {formError && (
+          <p className="form-message" role="alert">
+            {formError}
+          </p>
+        )}
 
-          <div className="form-actions">
-            <Button type="submit" variant="glow" sparkle loading={isSubmitting}>
-              {submitLabel}
-            </Button>
-            <Button as={Link} to={cancelTo} variant="ghost">
-              {cancelLabel}
-            </Button>
-          </div>
+        <div className="form-actions">
+          <Button type="submit" variant="glow" sparkle loading={isSubmitting}>
+            {submitLabel}
+          </Button>
+          <Button as={Link} to={cancelTo} variant="ghost">
+            {cancelLabel}
+          </Button>
         </div>
       </form>
     </GlassCard>
