@@ -45,21 +45,40 @@ export default function PostForm({
 
   const hasPreview = image.trim().length > 0 && !previewFailed;
 
+  const previewCaption = caption.trim() || "Your caption will appear here.";
+
   return (
-    <GlassCard className="post-form-card" breathing>
+    <GlassCard className="post-form-card post-composer" breathing>
       <form className="post-form" onSubmit={handleSubmit}>
-        <div className="form-grid">
-          <div className="form-field">
-            <label htmlFor="image">Image URL</label>
-            <input
+        <div className="composer-layout">
+          <div className="composer-controls">
+            <div className="form-field">
+              <label htmlFor="image">Image URL</label>
+              <input
               id="image"
               name="image"
               placeholder="https://..."
               value={image}
               onChange={handleImageChange}
-              required
-            />
+                required
+              />
+            </div>
 
+            <div className="form-field">
+              <label htmlFor="caption">Caption</label>
+              <textarea
+                id="caption"
+                name="caption"
+                rows="6"
+                placeholder="Write a caption for your post..."
+                value={caption}
+                onChange={(event) => setCaption(event.target.value)}
+                required
+              />
+            </div>
+          </div>
+
+          <aside className="composer-preview" aria-label="Post preview">
             <div className={`image-preview-frame ${hasPreview ? "" : "image-preview-frame-empty"}`}>
               {hasPreview ? (
                 <img
@@ -69,38 +88,32 @@ export default function PostForm({
                   onError={() => setPreviewFailed(true)}
                 />
               ) : (
-                <p>{previewFailed ? "That image URL could not be loaded." : "Image preview appears here."}</p>
+                <p>{previewFailed ? "Image could not be loaded." : "Image preview"}</p>
               )}
             </div>
-          </div>
 
-          <div className="form-field">
-            <label htmlFor="caption">Caption</label>
-            <textarea
-              id="caption"
-              name="caption"
-              rows="6"
-              placeholder="Write a caption for your post..."
-              value={caption}
-              onChange={(event) => setCaption(event.target.value)}
-              required
-            />
-          </div>
+            <div className="composer-preview-body">
+              <span>Preview</span>
+              <strong>{previewCaption}</strong>
+            </div>
+          </aside>
         </div>
 
-        {formError && (
-          <p className="form-message" role="alert">
-            {formError}
-          </p>
-        )}
+        <div className="composer-footer">
+          {formError && (
+            <p className="form-message" role="alert">
+              {formError}
+            </p>
+          )}
 
-        <div className="form-actions">
-          <Button type="submit" variant="glow" sparkle loading={isSubmitting}>
-            {submitLabel}
-          </Button>
-          <Button as={Link} to={cancelTo} variant="ghost">
-            {cancelLabel}
-          </Button>
+          <div className="form-actions">
+            <Button type="submit" variant="glow" sparkle loading={isSubmitting}>
+              {submitLabel}
+            </Button>
+            <Button as={Link} to={cancelTo} variant="ghost">
+              {cancelLabel}
+            </Button>
+          </div>
         </div>
       </form>
     </GlassCard>
