@@ -1,11 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
-
-const URL = import.meta.env.VITE_SUPABASE_URL;
-const headers = {
-  apikey: import.meta.env.VITE_SUPABASE_APIKEY,
-  "Content-Type": "application/json",
-};
+import { getById, remove } from "../services/postService";
+import { formatPostDate } from "../utils/formatPostDate";
 
 export default function PostDetailPage() {
   const { id } = useParams();
@@ -14,9 +10,8 @@ export default function PostDetailPage() {
 
   useEffect(() => {
     async function getPost() {
-      const response = await fetch(`${URL}?id=eq.${id}`, { headers });
-      const data = await response.json();
-      setPost(data[0]);
+      const post = await getById(id);
+      setPost(post);
     }
 
     getPost();
@@ -27,7 +22,7 @@ export default function PostDetailPage() {
 
     if (!confirmed) return;
 
-    await fetch(`${URL}?id=eq.${id}`, { method: "DELETE", headers });
+    await remove(id);
     navigate("/");
   }
 
@@ -38,6 +33,11 @@ export default function PostDetailPage() {
         <img src={post.image} alt={post.caption} />
         <div className="post-detail-body">
           <p className="post-meta">Post #{post.id}</p>
+          {post.created_at && (
+            <time className="post-date" dateTime={post.created_at}>
+              {formatPostDate(post.created_at)}
+            </time>
+          )}
           <p className="post-detail-caption">{post.caption}</p>
           <div className="post-detail-actions">
             <Link to={`/posts/${id}/update`} className="btn btn-primary">

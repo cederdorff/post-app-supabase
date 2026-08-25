@@ -1,20 +1,14 @@
 import { useEffect, useState } from "react";
 import PostCard from "../components/PostCard";
-
-const URL = import.meta.env.VITE_SUPABASE_URL;
-const headers = {
-  apikey: import.meta.env.VITE_SUPABASE_APIKEY,
-  "Content-Type": "application/json",
-};
+import { getAll } from "../services/postService";
 
 export default function HomePage() {
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
     async function getPosts() {
-      const response = await fetch(URL, { headers });
-      const data = await response.json();
-      setPosts(data);
+      const posts = await getAll();
+      setPosts(posts);
     }
 
     getPosts();

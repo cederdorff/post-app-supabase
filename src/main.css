@@ -68,6 +68,13 @@ a:hover {
   margin: 0 0 0.5em;
 }
 
+.post-date {
+  display: block;
+  color: var(--green);
+  font-size: 0.9rem;
+  margin-bottom: 0.35rem;
+}
+
 .post-form,
 .post-card,
 .post-detail {
