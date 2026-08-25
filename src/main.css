@@ -68,6 +68,17 @@ a:hover {
   margin: 0 0 0.5em;
 }
 
+.error-message {
+  max-width: 900px;
+  margin: 0 0 1.25em;
+  padding: 1em 1.2em;
+  color: #8e1f2a;
+  background-color: rgba(244, 66, 80, 0.1);
+  border: 1px solid rgba(244, 66, 80, 0.2);
+  border-radius: 10px;
+  box-shadow: var(--shadow-soft);
+}
+
 .post-form,
 .post-card,
 .post-detail {

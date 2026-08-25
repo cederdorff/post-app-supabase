@@ -12,13 +12,30 @@ export default function UpdatePage() {
   const navigate = useNavigate();
   const [image, setImage] = useState("");
   const [caption, setCaption] = useState("");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     async function getPost() {
-      const response = await fetch(`${URL}?id=eq.${id}`, { headers });
-      const data = await response.json();
-      setImage(data[0].image);
-      setCaption(data[0].caption);
+      try {
+        const response = await fetch(`${URL}?id=eq.${id}`, { headers });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const post = data[0];
+
+        if (!post) {
+          throw new Error("Post not found");
+        }
+
+        setImage(post.image);
+        setCaption(post.caption);
+      } catch (caughtError) {
+        console.error(caughtError);
+        setError("We could not load the post. Please try again.");
+      }
     }
 
     getPost();
@@ -26,17 +43,27 @@ export default function UpdatePage() {
 
   async function handleSubmit(event) {
     event.preventDefault();
+    setError("");
 
-    await fetch(`${URL}?id=eq.${id}`, {
-      method: "PATCH",
-      headers,
-      body: JSON.stringify({
-        image: image.trim(),
-        caption: caption.trim(),
-      }),
-    });
+    try {
+      const response = await fetch(`${URL}?id=eq.${id}`, {
+        method: "PATCH",
+        headers,
+        body: JSON.stringify({
+          image: image.trim(),
+          caption: caption.trim(),
+        }),
+      });
 
-    navigate(`/posts/${id}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+
+      navigate(`/posts/${id}`);
+    } catch (caughtError) {
+      console.error(caughtError);
+      setError("We could not update the post. Please try again.");
+    }
   }
 
   return (
@@ -44,6 +71,8 @@ export default function UpdatePage() {
       <h1 className="page-title">Update Post</h1>
 
       <form className="post-form" onSubmit={handleSubmit}>
+        {error && <p className="error-message" role="alert">{error}</p>}
+
         <div className="form-grid">
           <div className="form-field">
             <label htmlFor="image">Image URL</label>

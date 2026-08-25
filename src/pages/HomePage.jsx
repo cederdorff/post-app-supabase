@@ -9,12 +9,23 @@ const headers = {
 
 export default function HomePage() {
   const [posts, setPosts] = useState([]);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     async function getPosts() {
-      const response = await fetch(URL, { headers });
-      const data = await response.json();
-      setPosts(data);
+      try {
+        const response = await fetch(URL, { headers });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setPosts(data);
+      } catch (caughtError) {
+        console.error(caughtError);
+        setError("We could not load the posts. Please try again.");
+      }
     }
 
     getPosts();
@@ -26,6 +37,8 @@ export default function HomePage() {
         <p className="feed-eyebrow">Post App</p>
         <h1 className="page-title">Explore the latest posts</h1>
       </section>
+
+      {error && <p className="error-message" role="alert">{error}</p>}
 
       <section className="post-grid">
         {posts.map((post) => (

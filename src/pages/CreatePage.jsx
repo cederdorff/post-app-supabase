@@ -11,26 +11,39 @@ export default function CreatePage() {
   const navigate = useNavigate();
   const [image, setImage] = useState("");
   const [caption, setCaption] = useState("");
+  const [error, setError] = useState("");
 
   async function handleSubmit(event) {
     event.preventDefault();
+    setError("");
 
-    await fetch(URL, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({
-        image: image.trim(),
-        caption: caption.trim(),
-      }),
-    });
+    try {
+      const response = await fetch(URL, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          image: image.trim(),
+          caption: caption.trim(),
+        }),
+      });
 
-    navigate("/");
+      if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+      }
+
+      navigate("/");
+    } catch (caughtError) {
+      console.error(caughtError);
+      setError("We could not create the post. Please try again.");
+    }
   }
 
   return (
     <main className="app">
       <h1 className="page-title">Create Post</h1>
       <form className="post-form" onSubmit={handleSubmit}>
+        {error && <p className="error-message" role="alert">{error}</p>}
+
         <div className="form-grid">
           <div className="form-field">
             <label htmlFor="image">Image URL</label>
