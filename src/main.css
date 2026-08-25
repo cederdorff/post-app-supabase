@@ -2,7 +2,7 @@
   --green: rgb(38, 76, 89);
   --dark-green: rgb(9, 47, 59);
   --light-green: rgb(172, 198, 201);
-  --text-color-danger: #f44250;
+  --text-color-danger: #a91422;
   --text-color-dark: #333;
   --text-color-light: #f1f1f1;
   --white: #f1f1f1;
@@ -42,6 +42,39 @@ a:hover {
   color: var(--dark-green);
 }
 
+:focus-visible {
+  outline: 3px solid #ffbf47;
+  outline-offset: 4px;
+}
+
+.skip-link {
+  position: fixed;
+  z-index: 1000;
+  top: 0.75rem;
+  left: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--white);
+  color: var(--dark-green);
+  font-weight: 700;
+  transform: translateY(-200%);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .app {
   animation: fadeIn 0.5s;
   max-width: 1600px;
@@ -50,9 +83,20 @@ a:hover {
 }
 
 .page-title {
+  width: fit-content;
+  max-width: 100%;
   font-size: 3.2em;
   line-height: 1.1;
   margin: 0 0 0.9em;
+}
+
+.page-title:focus {
+  outline-offset: 0.2em;
+}
+
+.status-message {
+  grid-column: 1 / -1;
+  font-size: 1.1rem;
 }
 
 .feed-intro {
@@ -231,12 +275,16 @@ a:hover {
 
 .form-field input:focus,
 .form-field textarea:focus {
-  outline: none;
   border-color: rgba(38, 76, 89, 0.35);
   box-shadow:
     0 0 0 4px rgba(172, 198, 201, 0.35),
     0 10px 20px rgba(38, 76, 89, 0.08);
   transform: translateY(-1px);
+}
+
+.form-hint {
+  color: #43504b;
+  font-size: 0.9rem;
 }
 
 .form-field textarea {
@@ -409,5 +457,16 @@ a:hover {
 
   to {
     opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

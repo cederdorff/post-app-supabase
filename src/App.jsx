@@ -8,6 +8,9 @@ import UpdatePage from "./pages/UpdatePage";
 function App() {
   return (
     <BrowserRouter basename={import.meta.env.BASE_URL}>
+      <a className="skip-link" href="#main-content">
+        Skip to main content
+      </a>
       <Header />
       <Routes>
         <Route path="/" element={<HomePage />} />
