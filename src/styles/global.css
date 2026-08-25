@@ -1,14 +1,4 @@
-:root {
-  --green: rgb(38, 76, 89);
-  --dark-green: rgb(9, 47, 59);
-  --light-green: rgb(172, 198, 201);
-  --text-color-danger: #f44250;
-  --text-color-dark: #333;
-  --text-color-light: #f1f1f1;
-  --white: #f1f1f1;
-  --shadow-soft: 0 0 1px hsla(0, 0%, 0%, 0.2), 0 1px 2px hsla(0, 0%, 0%, 0.2);
-  --shadow-card: 1px 1px 8px rgba(0, 0, 0, 0.25);
-}
+@import "./variables.css";
 
 html {
   box-sizing: border-box;
@@ -22,8 +12,8 @@ html {
 
 body,
 html {
-  background-color: var(--light-green);
-  color: var(--text-color-dark);
+  background-color: var(--color-brand-light);
+  color: var(--color-text);
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   font-weight: 400;
   min-height: 100%;
@@ -33,13 +23,13 @@ html {
 }
 
 a {
-  color: var(--green);
+  color: var(--color-brand);
   text-decoration: none;
   transition: 0.5s;
 }
 
 a:hover {
-  color: var(--dark-green);
+  color: var(--color-brand-dark);
 }
 
 .app {
@@ -60,7 +50,7 @@ a:hover {
 }
 
 .feed-eyebrow {
-  color: var(--green);
+  color: var(--color-brand);
   text-transform: uppercase;
   letter-spacing: 0.12em;
   font-size: 0.9rem;
@@ -69,9 +59,8 @@ a:hover {
 }
 
 .post-form,
-.post-card,
 .post-detail {
-  background-color: var(--white);
+  background-color: var(--color-surface);
   box-shadow: var(--shadow-card);
   animation: fadeIn 0.5s;
 }
@@ -81,7 +70,7 @@ a:hover {
   align-items: center;
   justify-content: center;
   text-decoration: none;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   border: none;
   cursor: pointer;
   width: auto;
@@ -100,23 +89,23 @@ a:hover {
 }
 
 .btn-primary {
-  background-color: var(--green);
-  color: var(--white);
+  background-color: var(--color-brand);
+  color: var(--color-text-inverse);
 }
 
 .btn-primary:hover {
-  background-color: var(--light-green);
-  color: var(--green);
+  background-color: var(--color-brand-light);
+  color: var(--color-brand);
 }
 
 .btn-danger {
-  background-color: var(--white);
-  color: var(--text-color-danger);
+  background-color: var(--color-surface);
+  color: var(--color-danger);
 }
 
 .btn-danger:hover {
-  background-color: var(--text-color-danger);
-  color: var(--white);
+  background-color: var(--color-danger);
+  color: var(--color-text-inverse);
 }
 
 .btn:hover {
@@ -130,54 +119,12 @@ a:hover {
   transform: translateY(1px);
 }
 
-.site-header {
-  background-color: var(--green);
-  display: grid;
-  left: 0;
-  position: fixed;
-  right: 0;
-  text-align: center;
-  top: 0;
-  padding: 1em 2em;
-  z-index: 100;
-}
-
-.site-nav {
-  max-width: 1600px;
-  width: 100%;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1em;
-}
-
-.nav-link {
-  display: inline-block;
-  color: var(--text-color-light);
-  text-align: center;
-  padding: 20px 16px;
-  text-decoration: none;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  border: 2px solid var(--green);
-  font-weight: 500;
-  font-size: 1.2em;
-  border-radius: 8px;
-  transition: 0.5s;
-}
-
-.nav-link:hover,
-.nav-link.active {
-  background-color: var(--light-green);
-  color: var(--green);
-}
-
 .post-form {
   display: grid;
   gap: 1.25em;
   padding: 1.5em;
   transition: 0.5s;
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   max-width: 900px;
   border: 1px solid rgba(38, 76, 89, 0.12);
 }
@@ -196,7 +143,7 @@ a:hover {
 
 .form-field label {
   font-weight: 600;
-  color: var(--dark-green);
+  color: var(--color-brand-dark);
 }
 
 .form-field input,
@@ -215,6 +162,12 @@ a:hover {
     border-color 0.25s ease,
     box-shadow 0.25s ease,
     transform 0.25s ease;
+}
+
+.caption-count {
+  align-self: flex-end;
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
 }
 
 .form-field input:hover,
@@ -266,44 +219,6 @@ a:hover {
   gap: 1em;
 }
 
-.post-card {
-  padding: 1.5em;
-  transition: 0.5s;
-  cursor: pointer;
-  border-radius: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 1em;
-}
-
-.post-card:hover {
-  box-shadow: 0 8px 16px 0 var(--green);
-}
-
-.post-card img {
-  width: 100%;
-  height: 220px;
-  object-fit: cover;
-  border-radius: 10px;
-}
-
-.post-card-body h2 {
-  margin: 0;
-  font-weight: 500;
-  letter-spacing: 0.1px;
-  font-size: 1.2rem;
-  line-height: 1.35;
-}
-
-.post-card-id {
-  margin: 0;
-  color: var(--dark-green);
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
 .post-detail {
   padding: 1.5em;
   transition: 0.5s;
@@ -329,7 +244,7 @@ a:hover {
 
 .post-meta {
   margin: 0;
-  color: var(--dark-green);
+  color: var(--color-brand-dark);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-size: 0.85rem;
@@ -370,14 +285,6 @@ a:hover {
     padding: 120px 1em 1em;
   }
 
-  .site-header {
-    padding: 1em;
-  }
-
-  .site-nav {
-    grid-template-columns: 1fr;
-  }
-
   .page-title {
     font-size: 2.4em;
     margin-bottom: 0.75em;
@@ -394,7 +301,7 @@ a:hover {
 
   .post-form {
     padding: 1.25em;
-    border-radius: 14px;
+    border-radius: var(--radius-md);
   }
 
   .image-preview {

@@ -69,8 +69,20 @@ export default function UpdatePage() {
               placeholder="Write a caption for your post..."
               value={caption}
               onChange={(event) => setCaption(event.target.value)}
+              maxLength="180"
               required
             />
+            <small
+              className="caption-count"
+              style={{
+                color:
+                  caption.length >= 150
+                    ? "var(--color-danger)"
+                    : "var(--color-muted)",
+              }}
+            >
+              {caption.length}/180 characters
+            </small>
           </div>
         </div>
 
