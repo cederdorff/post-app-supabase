@@ -4,23 +4,20 @@ import { useParams, useNavigate } from "react-router";
 const URL = import.meta.env.VITE_SUPABASE_URL;
 const headers = {
   apikey: import.meta.env.VITE_SUPABASE_APIKEY,
-  "Content-Type": "application/json",
+  "Content-Type": "application/json"
 };
 
 export default function UpdatePage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [image, setImage] = useState("");
-  const [caption, setCaption] = useState("");
+  const [post, setPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [postLoaded, setPostLoaded] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
     async function getPost() {
       setLoading(true);
-      setPostLoaded(false);
       setError("");
 
       try {
@@ -31,15 +28,13 @@ export default function UpdatePage() {
         }
 
         const data = await response.json();
-        const post = data[0];
+        const loadedPost = data[0];
 
-        if (!post) {
+        if (!loadedPost) {
           throw new Error("Post not found");
         }
 
-        setImage(post.image);
-        setCaption(post.caption);
-        setPostLoaded(true);
+        setPost(loadedPost);
       } catch (caughtError) {
         console.error(caughtError);
         setError("We could not load the post. Please try again.");
@@ -61,9 +56,9 @@ export default function UpdatePage() {
         method: "PATCH",
         headers,
         body: JSON.stringify({
-          image: image.trim(),
-          caption: caption.trim(),
-        }),
+          image: post.image.trim(),
+          caption: post.caption.trim()
+        })
       });
 
       if (!response.ok) {
@@ -91,7 +86,7 @@ export default function UpdatePage() {
         </p>
       )}
 
-      {postLoaded && (
+      {!loading && post && (
         <form className="post-form" onSubmit={handleSubmit}>
           <div className="form-grid">
             <div className="form-field">
@@ -100,13 +95,11 @@ export default function UpdatePage() {
                 id="image"
                 name="image"
                 placeholder="https://..."
-                value={image}
-                onChange={(event) => setImage(event.target.value)}
+                value={post.image}
+                onChange={(event) => setPost({ ...post, image: event.target.value })}
                 required
               />
-              {image && (
-                <img src={image} alt="Preview" className="image-preview" />
-              )}
+              {post.image && <img src={post.image} alt="Preview" className="image-preview" />}
             </div>
 
             <div className="form-field">
@@ -116,19 +109,15 @@ export default function UpdatePage() {
                 name="caption"
                 rows="4"
                 placeholder="Write a caption for your post..."
-                value={caption}
-                onChange={(event) => setCaption(event.target.value)}
+                value={post.caption}
+                onChange={(event) => setPost({ ...post, caption: event.target.value })}
                 required
               />
             </div>
           </div>
 
           <div className="form-actions">
-            <button
-              type="submit"
-              className="btn btn-primary"
-              disabled={isSubmitting}
-            >
+            <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
               {isSubmitting ? "Saving..." : "Save"}
             </button>
           </div>

@@ -4,7 +4,7 @@ import { useNavigate } from "react-router";
 const URL = import.meta.env.VITE_SUPABASE_URL;
 const headers = {
   apikey: import.meta.env.VITE_SUPABASE_APIKEY,
-  "Content-Type": "application/json",
+  "Content-Type": "application/json"
 };
 
 export default function CreatePage() {
@@ -25,8 +25,8 @@ export default function CreatePage() {
         headers,
         body: JSON.stringify({
           image: image.trim(),
-          caption: caption.trim(),
-        }),
+          caption: caption.trim()
+        })
       });
 
       if (!response.ok) {
@@ -81,11 +81,7 @@ export default function CreatePage() {
         </div>
 
         <div className="form-actions">
-          <button
-            type="submit"
-            className="btn btn-primary"
-            disabled={isSubmitting}
-          >
+          <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
             {isSubmitting ? "Saving..." : "Save"}
           </button>
         </div>
