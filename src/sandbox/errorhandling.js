@@ -4,7 +4,7 @@ const headers = {
   "Content-Type": "application/json"
 };
 
-async function getPost(id) {
+export async function getPost(id) {
   const response = await fetch(`${URL}?id=eq.${id}`, { headers });
   const data = await response.json();
   console.log(data);

@@ -11,10 +11,15 @@ export default function PostDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [post, setPost] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
     async function getPost() {
+      setLoading(true);
+      setError("");
+
       try {
         const response = await fetch(`${URL}?id=eq.${id}`, { headers });
 
@@ -33,6 +38,8 @@ export default function PostDetailPage() {
       } catch (caughtError) {
         console.error(caughtError);
         setError("We could not load the post. Please try again.");
+      } finally {
+        setLoading(false);
       }
     }
 
@@ -43,6 +50,7 @@ export default function PostDetailPage() {
     const confirmed = window.confirm("Delete this post?");
 
     if (!confirmed) return;
+    setIsDeleting(true);
     setError("");
 
     try {
@@ -59,15 +67,23 @@ export default function PostDetailPage() {
     } catch (caughtError) {
       console.error(caughtError);
       setError("We could not delete the post. Please try again.");
+    } finally {
+      setIsDeleting(false);
     }
   }
 
   return (
     <main className="app">
       <h1 className="page-title">Post Details</h1>
-      {error && <p className="error-message" role="alert">{error}</p>}
+      {loading && <p className="status-message">Loading post...</p>}
 
-      {post && (
+      {error && (
+        <p className="error-message" role="alert">
+          {error}
+        </p>
+      )}
+
+      {!loading && post && (
         <article className="post-detail">
           <img src={post.image} alt={post.caption} />
           <div className="post-detail-body">
@@ -77,8 +93,12 @@ export default function PostDetailPage() {
               <Link to={`/posts/${id}/update`} className="btn btn-primary">
                 Edit
               </Link>
-              <button className="btn btn-danger" onClick={handleDelete}>
-                Delete
+              <button
+                className="btn btn-danger"
+                onClick={handleDelete}
+                disabled={isDeleting}
+              >
+                {isDeleting ? "Deleting..." : "Delete"}
               </button>
             </div>
           </div>

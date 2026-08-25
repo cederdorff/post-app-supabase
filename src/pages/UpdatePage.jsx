@@ -12,10 +12,17 @@ export default function UpdatePage() {
   const navigate = useNavigate();
   const [image, setImage] = useState("");
   const [caption, setCaption] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [postLoaded, setPostLoaded] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
     async function getPost() {
+      setLoading(true);
+      setPostLoaded(false);
+      setError("");
+
       try {
         const response = await fetch(`${URL}?id=eq.${id}`, { headers });
 
@@ -32,9 +39,12 @@ export default function UpdatePage() {
 
         setImage(post.image);
         setCaption(post.caption);
+        setPostLoaded(true);
       } catch (caughtError) {
         console.error(caughtError);
         setError("We could not load the post. Please try again.");
+      } finally {
+        setLoading(false);
       }
     }
 
@@ -43,6 +53,7 @@ export default function UpdatePage() {
 
   async function handleSubmit(event) {
     event.preventDefault();
+    setIsSubmitting(true);
     setError("");
 
     try {
@@ -63,6 +74,8 @@ export default function UpdatePage() {
     } catch (caughtError) {
       console.error(caughtError);
       setError("We could not update the post. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -70,45 +83,57 @@ export default function UpdatePage() {
     <main className="app">
       <h1 className="page-title">Update Post</h1>
 
-      <form className="post-form" onSubmit={handleSubmit}>
-        {error && <p className="error-message" role="alert">{error}</p>}
+      {loading && <p className="status-message">Loading post...</p>}
 
-        <div className="form-grid">
-          <div className="form-field">
-            <label htmlFor="image">Image URL</label>
-            <input
-              id="image"
-              name="image"
-              placeholder="https://..."
-              value={image}
-              onChange={(event) => setImage(event.target.value)}
-              required
-            />
-            {image && (
-              <img src={image} alt="Preview" className="image-preview" />
-            )}
+      {error && (
+        <p className="error-message" role="alert">
+          {error}
+        </p>
+      )}
+
+      {postLoaded && (
+        <form className="post-form" onSubmit={handleSubmit}>
+          <div className="form-grid">
+            <div className="form-field">
+              <label htmlFor="image">Image URL</label>
+              <input
+                id="image"
+                name="image"
+                placeholder="https://..."
+                value={image}
+                onChange={(event) => setImage(event.target.value)}
+                required
+              />
+              {image && (
+                <img src={image} alt="Preview" className="image-preview" />
+              )}
+            </div>
+
+            <div className="form-field">
+              <label htmlFor="caption">Caption *</label>
+              <textarea
+                id="caption"
+                name="caption"
+                rows="4"
+                placeholder="Write a caption for your post..."
+                value={caption}
+                onChange={(event) => setCaption(event.target.value)}
+                required
+              />
+            </div>
           </div>
 
-          <div className="form-field">
-            <label htmlFor="caption">Caption *</label>
-            <textarea
-              id="caption"
-              name="caption"
-              rows="4"
-              placeholder="Write a caption for your post..."
-              value={caption}
-              onChange={(event) => setCaption(event.target.value)}
-              required
-            />
+          <div className="form-actions">
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Saving..." : "Save"}
+            </button>
           </div>
-        </div>
-
-        <div className="form-actions">
-          <button type="submit" className="btn btn-primary">
-            Save
-          </button>
-        </div>
-      </form>
+        </form>
+      )}
     </main>
   );
 }

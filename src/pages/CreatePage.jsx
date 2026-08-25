@@ -11,10 +11,12 @@ export default function CreatePage() {
   const navigate = useNavigate();
   const [image, setImage] = useState("");
   const [caption, setCaption] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
   async function handleSubmit(event) {
     event.preventDefault();
+    setIsSubmitting(true);
     setError("");
 
     try {
@@ -35,6 +37,8 @@ export default function CreatePage() {
     } catch (caughtError) {
       console.error(caughtError);
       setError("We could not create the post. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
@@ -42,7 +46,11 @@ export default function CreatePage() {
     <main className="app">
       <h1 className="page-title">Create Post</h1>
       <form className="post-form" onSubmit={handleSubmit}>
-        {error && <p className="error-message" role="alert">{error}</p>}
+        {error && (
+          <p className="error-message" role="alert">
+            {error}
+          </p>
+        )}
 
         <div className="form-grid">
           <div className="form-field">
@@ -73,8 +81,12 @@ export default function CreatePage() {
         </div>
 
         <div className="form-actions">
-          <button type="submit" className="btn btn-primary">
-            Save
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Saving..." : "Save"}
           </button>
         </div>
       </form>
