@@ -27,9 +27,7 @@ export default function HomePage() {
     <main className="app" id="main-content">
       <section className="feed-intro">
         <p className="feed-eyebrow">Post App</p>
-        <PageHeading documentTitle="Latest posts">
-          Explore the latest posts
-        </PageHeading>
+        <PageHeading title="Explore the latest posts" />
       </section>
 
       <section className="post-grid" aria-labelledby="latest-posts-heading">

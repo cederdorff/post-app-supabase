@@ -34,7 +34,7 @@ export default function PostDetailPage() {
 
   return (
     <main className="app" id="main-content">
-      <PageHeading>Post Details</PageHeading>
+      <PageHeading title="Post Details" />
       {!post ? (
         <p className="status-message" role="status">
           Loading post…

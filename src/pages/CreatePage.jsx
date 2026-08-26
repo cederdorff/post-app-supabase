@@ -30,7 +30,7 @@ export default function CreatePage() {
 
   return (
     <main className="app" id="main-content">
-      <PageHeading>Create Post</PageHeading>
+      <PageHeading title="Create Post" />
       <form className="post-form" onSubmit={handleSubmit}>
         <div className="form-grid">
           <div className="form-field">

@@ -42,7 +42,7 @@ export default function UpdatePage() {
 
   return (
     <main className="app" id="main-content">
-      <PageHeading>Update Post</PageHeading>
+      <PageHeading title="Update Post" />
 
       <form className="post-form" onSubmit={handleSubmit}>
         <div className="form-grid">
