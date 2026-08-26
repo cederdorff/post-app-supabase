@@ -1,9 +1,13 @@
-const postDateFormatter = new Intl.DateTimeFormat("da-DK", {
-  dateStyle: "medium",
-});
-
 export function formatPostDate(dateString) {
   if (!dateString) return "";
 
-  return postDateFormatter.format(new Date(dateString));
+  const date = new Date(dateString);
+
+  const formattedDate = date.toLocaleDateString("da-DK", {
+    year: "numeric",
+    month: "long",
+    day: "numeric"
+  });
+
+  return formattedDate;
 }
