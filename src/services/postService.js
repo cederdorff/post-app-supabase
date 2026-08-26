@@ -5,48 +5,60 @@ const headers = {
   "Content-Type": "application/json",
 };
 
-async function request(endpoint = "", options = {}) {
-  const response = await fetch(`${URL}${endpoint}`, {
-    ...options,
-    headers: {
-      ...headers,
-      ...options.headers,
-    },
-  });
+const baseOptions = { headers };
+
+export async function getAll() {
+  const response = await fetch(`${URL}?order=created_at.desc`, baseOptions);
 
   if (!response.ok) {
     throw new Error(`Supabase request failed: ${response.status}`);
   }
 
-  if (response.status === 204) return null;
-
-  const text = await response.text();
-  return text ? JSON.parse(text) : null;
-}
-
-export function getAll() {
-  return request("?order=created_at.desc");
+  return response.json();
 }
 
 export async function getById(id) {
-  const posts = await request(`?id=eq.${id}`);
+  const response = await fetch(`${URL}?id=eq.${id}`, baseOptions);
+
+  if (!response.ok) {
+    throw new Error(`Supabase request failed: ${response.status}`);
+  }
+
+  const posts = await response.json();
   return posts[0] ?? null;
 }
 
-export function create(post) {
-  return request("", {
+export async function create(post) {
+  const response = await fetch(URL, {
+    ...baseOptions,
     method: "POST",
     body: JSON.stringify(post),
   });
+
+  if (!response.ok) {
+    throw new Error(`Supabase request failed: ${response.status}`);
+  }
 }
 
-export function update(id, post) {
-  return request(`?id=eq.${id}`, {
+export async function update(id, post) {
+  const response = await fetch(`${URL}?id=eq.${id}`, {
+    ...baseOptions,
     method: "PATCH",
     body: JSON.stringify(post),
   });
+
+  if (!response.ok) {
+    throw new Error(`Supabase request failed: ${response.status}`);
+  }
 }
 
-export function remove(id) {
-  return request(`?id=eq.${id}`, { method: "DELETE" });
+export async function remove(id) {
+  const response = await fetch(`${URL}?id=eq.${id}`, {
+    ...baseOptions,
+    method: "DELETE",
+  });
+
+  if (!response.ok) {
+    throw new Error(`Supabase request failed: ${response.status}`);
+  }
 }
