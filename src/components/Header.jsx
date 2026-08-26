@@ -8,7 +8,7 @@ export default function Header() {
           Home
         </NavLink>
         <NavLink to="/create" className="nav-link">
-          Create Post
+          Create
         </NavLink>
       </nav>
     </header>
