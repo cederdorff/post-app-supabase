@@ -7,12 +7,11 @@ const CURRENT_USER = {
   userName: "Rasmus Cederdorff",
   userMail: "race@eaaa.dk",
   userTitle: "Senior Lecturer",
-  userImage:
-    "https://raw.githubusercontent.com/cederdorff/race/master/images/users/race.webp",
+  userImage: "https://raw.githubusercontent.com/cederdorff/race/master/images/users/race.webp"
 };
 const headers = {
   apikey: import.meta.env.VITE_SUPABASE_APIKEY,
-  "Content-Type": "application/json",
+  "Content-Type": "application/json"
 };
 
 export default function CreatePage() {
@@ -29,8 +28,11 @@ export default function CreatePage() {
       body: JSON.stringify({
         image: image.trim(),
         caption: caption.trim(),
-        ...CURRENT_USER,
-      }),
+        userName: CURRENT_USER.userName,
+        userMail: CURRENT_USER.userMail,
+        userTitle: CURRENT_USER.userTitle,
+        userImage: CURRENT_USER.userImage
+      })
     });
 
     navigate("/");
