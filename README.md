@@ -25,7 +25,7 @@ Branchen `posts-and-users` viser, hvordan den simple Post App kan opdeles i to r
 
 I `.env` gemmes kun roden til Supabase REST API. De enkelte pages tilføjer selv `/posts` og de queries, de har brug for.
 
-I demonstrationen starter den relationelle query med `select=*,user:users(*)`. Branchens sluttilstand udvælger derefter kun de felter, UI'et bruger: `id`, `createdAt`, `caption`, `image`, `userId` samt brugerens `id`, `name`, `title` og `image`.
+Branchen bruger den enkle relationelle query `select=*,user:users(*)`. I undervisningen kan queryen derefter afgrænses til bestemte felter som et selvstændigt eksempel.
 
 > Resten af README'en beskriver den oprindelige CRUD-øvelse og dens simple `posts`-model uden relationer. Race-05-demonstrationen fortsætter fra dette udgangspunkt med SQL-filen `03-posts-and-users.sql` og koden på denne branch.
 

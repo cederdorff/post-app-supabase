@@ -14,9 +14,7 @@ export default function PostDetailPage() {
 
   useEffect(() => {
     async function getPost() {
-      const query =
-        `?id=eq.${id}&select=id,createdAt,caption,image,userId,` +
-        "user:users(id,name,title,image)";
+      const query = `?id=eq.${id}&select=*,user:users(*)`;
       const response = await fetch(`${POSTS_URL}${query}`, { headers });
       const data = await response.json();
       setPost(data[0]);
