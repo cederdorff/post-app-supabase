@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router";
 const POSTS_URL = `${import.meta.env.VITE_SUPABASE_URL}/postsWithUserData`;
 const headers = {
   apikey: import.meta.env.VITE_SUPABASE_APIKEY,
-  "Content-Type": "application/json",
+  "Content-Type": "application/json"
 };
 
 export default function UpdatePage() {
@@ -16,9 +16,11 @@ export default function UpdatePage() {
   useEffect(() => {
     async function getPost() {
       const response = await fetch(`${POSTS_URL}?id=eq.${id}`, { headers });
-      const data = await response.json();
-      setImage(data[0].image);
-      setCaption(data[0].caption);
+      const posts = await response.json();
+      const post = posts[0];
+
+      setImage(post.image);
+      setCaption(post.caption);
     }
 
     getPost();
@@ -32,8 +34,8 @@ export default function UpdatePage() {
       headers,
       body: JSON.stringify({
         image: image.trim(),
-        caption: caption.trim(),
-      }),
+        caption: caption.trim()
+      })
     });
 
     navigate(`/posts/${id}`);
@@ -55,9 +57,7 @@ export default function UpdatePage() {
               onChange={(event) => setImage(event.target.value)}
               required
             />
-            {image && (
-              <img src={image} alt="Preview" className="image-preview" />
-            )}
+            {image && <img src={image} alt="Preview" className="image-preview" />}
           </div>
 
           <div className="form-field">

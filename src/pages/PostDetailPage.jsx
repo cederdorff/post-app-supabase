@@ -4,7 +4,7 @@ import { Link, useNavigate, useParams } from "react-router";
 const POSTS_URL = `${import.meta.env.VITE_SUPABASE_URL}/postsWithUserData`;
 const headers = {
   apikey: import.meta.env.VITE_SUPABASE_APIKEY,
-  "Content-Type": "application/json",
+  "Content-Type": "application/json"
 };
 
 export default function PostDetailPage() {
@@ -29,7 +29,7 @@ export default function PostDetailPage() {
 
     await fetch(`${POSTS_URL}?id=eq.${id}`, {
       method: "DELETE",
-      headers,
+      headers
     });
     navigate("/");
   }
