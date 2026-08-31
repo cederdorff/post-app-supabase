@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 
 const POSTS_URL = `${import.meta.env.VITE_SUPABASE_URL}/posts`;
+// Simulates the currently logged-in user
 const CURRENT_USER_ID = 1;
 const headers = {
   apikey: import.meta.env.VITE_SUPABASE_APIKEY,
