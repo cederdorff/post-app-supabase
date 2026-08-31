@@ -12,7 +12,8 @@ export default function HomePage() {
 
   useEffect(() => {
     async function getPosts() {
-      const query = "?select=*,user:users(*)";
+      const query =
+        "?select=id,createdAt,caption,image,userId,user:users(id,name,title,image)";
       const response = await fetch(`${POSTS_URL}${query}`, { headers });
       const data = await response.json();
       setPosts(data);
