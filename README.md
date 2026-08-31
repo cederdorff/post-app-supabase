@@ -14,6 +14,23 @@ Fokus er på:
 Målet er ikke at bygge en avanceret app.
 Målet er at bygge en CRUD-app, som virker.
 
+## Demonstration: duplicated user data
+
+Branchen `posts-with-duplicated-user-data` viser en denormaliseret model, hvor hvert post gemmer sin egen kopi af brugerens oplysninger:
+
+- `postsWithUserData(id, createdAt, caption, image, userName, userMail, userTitle, userImage)`
+
+Appen læser direkte fra `/postsWithUserData`. Et nyt post oprettes med den samme hardcodede `CURRENT_USER`, så det bliver synligt, at brugeroplysningerne gentages på flere rækker. Update kan ændre postets billede og caption, men ikke dets brugeroplysninger.
+
+På denne branch skal `.env` kun indeholde roden til Supabase REST API. De enkelte pages tilføjer selv `/postsWithUserData`:
+
+```dotenv
+VITE_SUPABASE_URL=https://dit-project-id.supabase.co/rest/v1
+VITE_SUPABASE_APIKEY=din_sb_publishable_key
+```
+
+> Resten af README'en beskriver den oprindelige CRUD-øvelse og dens simple `posts`-model uden brugerdata. Race-05-demonstrationen fortsætter fra dette udgangspunkt med SQL-filen `02-posts-with-duplicated-user-data.sql` og koden på denne branch.
+
 ## 1. Startprojekt
 
 - Brug dette template repo: [post-app-supabase-template](https://github.com/cederdorff/post-app-supabase-template)

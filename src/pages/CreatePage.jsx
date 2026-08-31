@@ -1,7 +1,15 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 
-const URL = import.meta.env.VITE_SUPABASE_URL;
+const POSTS_URL = `${import.meta.env.VITE_SUPABASE_URL}/postsWithUserData`;
+// Simulates the currently logged-in user
+const CURRENT_USER = {
+  userName: "Rasmus Cederdorff",
+  userMail: "race@eaaa.dk",
+  userTitle: "Senior Lecturer",
+  userImage:
+    "https://raw.githubusercontent.com/cederdorff/race/master/images/users/race.webp",
+};
 const headers = {
   apikey: import.meta.env.VITE_SUPABASE_APIKEY,
   "Content-Type": "application/json",
@@ -15,12 +23,13 @@ export default function CreatePage() {
   async function handleSubmit(event) {
     event.preventDefault();
 
-    await fetch(URL, {
+    await fetch(POSTS_URL, {
       method: "POST",
       headers,
       body: JSON.stringify({
         image: image.trim(),
         caption: caption.trim(),
+        ...CURRENT_USER,
       }),
     });
 

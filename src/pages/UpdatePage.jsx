@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 
-const URL = import.meta.env.VITE_SUPABASE_URL;
+const POSTS_URL = `${import.meta.env.VITE_SUPABASE_URL}/postsWithUserData`;
 const headers = {
   apikey: import.meta.env.VITE_SUPABASE_APIKEY,
   "Content-Type": "application/json",
@@ -15,7 +15,7 @@ export default function UpdatePage() {
 
   useEffect(() => {
     async function getPost() {
-      const response = await fetch(`${URL}?id=eq.${id}`, { headers });
+      const response = await fetch(`${POSTS_URL}?id=eq.${id}`, { headers });
       const data = await response.json();
       setImage(data[0].image);
       setCaption(data[0].caption);
@@ -27,7 +27,7 @@ export default function UpdatePage() {
   async function handleSubmit(event) {
     event.preventDefault();
 
-    await fetch(`${URL}?id=eq.${id}`, {
+    await fetch(`${POSTS_URL}?id=eq.${id}`, {
       method: "PATCH",
       headers,
       body: JSON.stringify({
