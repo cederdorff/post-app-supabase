@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 
-const URL = import.meta.env.VITE_SUPABASE_URL;
+const POSTS_URL = `${import.meta.env.VITE_SUPABASE_URL}/posts`;
 const headers = {
   apikey: import.meta.env.VITE_SUPABASE_APIKEY,
-  "Content-Type": "application/json",
+  "Content-Type": "application/json"
 };
 
 export default function PostDetailPage() {
@@ -14,7 +14,8 @@ export default function PostDetailPage() {
 
   useEffect(() => {
     async function getPost() {
-      const response = await fetch(`${URL}?id=eq.${id}`, { headers });
+      const query = `?id=eq.${id}&select=*,user:users(*)`;
+      const response = await fetch(`${POSTS_URL}${query}`, { headers });
       const data = await response.json();
       setPost(data[0]);
     }
@@ -27,7 +28,10 @@ export default function PostDetailPage() {
 
     if (!confirmed) return;
 
-    await fetch(`${URL}?id=eq.${id}`, { method: "DELETE", headers });
+    await fetch(`${POSTS_URL}?id=eq.${id}`, {
+      method: "DELETE",
+      headers
+    });
     navigate("/");
   }
 
@@ -35,7 +39,16 @@ export default function PostDetailPage() {
     <main className="app">
       <h1 className="page-title">Post Details</h1>
       <article className="post-detail">
-        <img src={post.image} alt={post.caption} />
+        {post.user && (
+          <div className="post-author">
+            <img src={post.user.image} alt="" />
+            <div>
+              <p>{post.user.name}</p>
+              <p>{post.user.title}</p>
+            </div>
+          </div>
+        )}
+        <img className="post-image" src={post.image} alt={post.caption} />
         <div className="post-detail-body">
           <p className="post-meta">Post #{post.id}</p>
           <p className="post-detail-caption">{post.caption}</p>

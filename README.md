@@ -14,6 +14,19 @@ Fokus er på:
 Målet er ikke at bygge en avanceret app.
 Målet er at bygge en CRUD-app, som virker.
 
+## Demonstration: posts og users
+
+Branchen `posts-and-users` viser, hvordan den simple Post App kan opdeles i to relaterede tabeller:
+
+- `users(id, name, mail, title, image)`
+- `posts(id, createdAt, caption, image, userId)`
+
+`posts.userId` er en fremmednøgle til `users.id`. Appen henter posts og deres bruger gennem Supabase REST API og viser brugerens billede, navn og titel i feed og detaljevisning. Et nyt post oprettes med et fast `CURRENT_USER_ID`, som simulerer den aktuelle bruger. Update kan ændre postets billede og caption, men ikke dets bruger.
+
+I `.env` gemmes kun roden til Supabase REST API. De enkelte pages tilføjer selv `/posts` og de queries, de har brug for.
+
+> Resten af README'en beskriver den oprindelige CRUD-øvelse og dens simple `posts`-model uden relationer. Race-05-demonstrationen fortsætter fra dette udgangspunkt med SQL-filen `03-posts-and-users.sql` og koden på denne branch.
+
 ## 1. Startprojekt
 
 - Brug dette template repo: [post-app-supabase-template](https://github.com/cederdorff/post-app-supabase-template)
@@ -53,7 +66,7 @@ Hvis du ikke allerede har en `posts`-tabel, så gør sådan her:
 | column     | type               |
 | ---------- | ------------------ |
 | id         | int8 (primary key) |
-| created_at | timestampz         |
+| createdAt  | timestampz         |
 | image      | text               |
 | caption    | text               |
 
@@ -61,7 +74,7 @@ Hvis du ikke allerede har en `posts`-tabel, så gør sådan her:
 
 Hvis `id` ikke autogenereres, så sørg for at `id` er sat op som primary key.
 
-`created_at` bliver ofte oprettet automatisk af Supabase. Det er helt fint. Du skal ikke bruge det aktivt i denne øvelse.
+`createdAt` bliver ofte oprettet automatisk af Supabase. Det er helt fint. Du skal ikke bruge det aktivt i denne øvelse.
 
 ### Gør tabellen unrestricted lige nu
 
@@ -156,7 +169,7 @@ Målet er bare at sikre, at endpointet virker, før du går videre til React-kod
 Opret en `.env` fil i projektets rod:
 
 ```dotenv
-VITE_SUPABASE_URL=https://dit-project-id.supabase.co/rest/v1/posts
+VITE_SUPABASE_URL=https://dit-project-id.supabase.co/rest/v1
 VITE_SUPABASE_APIKEY=din_sb_publishable_key
 ```
 
@@ -199,12 +212,18 @@ Find først:
 - `useEffect`
 - stedet i JSX hvor posts skal vises
 
+Byg først endpointet til `posts` ud fra REST-roden i `.env`:
+
+```jsx
+const POSTS_URL = `${import.meta.env.VITE_SUPABASE_URL}/posts`;
+```
+
 Eksempel:
 
 ```jsx
 useEffect(() => {
   async function getPosts() {
-    const response = await fetch(URL, { headers });
+    const response = await fetch(POSTS_URL, { headers });
     const data = await response.json();
     setPosts(data);
   }
@@ -215,7 +234,7 @@ useEffect(() => {
 
 Du skal:
 
-1. Bruge `fetch(URL, { headers })`
+1. Bruge `fetch(POSTS_URL, { headers })`
 2. Konvertere svaret med `await response.json()`
 3. Gemme data i `posts` state
 4. Vise posts i UI
@@ -288,7 +307,7 @@ Eksempel:
 async function handleSubmit(event) {
   event.preventDefault();
 
-  await fetch(URL, {
+  await fetch(POSTS_URL, {
     method: "POST",
     headers,
     body: JSON.stringify({
@@ -339,7 +358,7 @@ Eksempel:
 ```jsx
 useEffect(() => {
   async function getPost() {
-    const response = await fetch(`${URL}?id=eq.${id}`, { headers });
+    const response = await fetch(`${POSTS_URL}?id=eq.${id}`, { headers });
     const data = await response.json();
     setPost(data[0]);
   }
@@ -351,7 +370,7 @@ useEffect(() => {
 Du skal:
 
 1. Bruge `useParams()` til at læse `id`
-2. Hente et post med querystring: `` `${URL}?id=eq.${id}` ``
+2. Hente et post med querystring: `` `${POSTS_URL}?id=eq.${id}` ``
 3. Gemme resultatet i state
 4. Vise `image` og `caption`
 5. Lave en delete-knap
@@ -367,7 +386,7 @@ async function handleDelete() {
 
   if (!confirmed) return;
 
-  await fetch(`${URL}?id=eq.${id}`, {
+  await fetch(`${POSTS_URL}?id=eq.${id}`, {
     method: "DELETE",
     headers,
   });
@@ -409,7 +428,7 @@ Eksempel:
 ```jsx
 useEffect(() => {
   async function getPost() {
-    const response = await fetch(`${URL}?id=eq.${id}`, { headers });
+    const response = await fetch(`${POSTS_URL}?id=eq.${id}`, { headers });
     const data = await response.json();
     setImage(data[0].image);
     setCaption(data[0].caption);
@@ -422,7 +441,7 @@ useEffect(() => {
 Du skal:
 
 1. Bruge `id` fra `useParams()`
-2. Hente et enkelt post med querystring: `` `${URL}?id=eq.${id}` ``
+2. Hente et enkelt post med querystring: `` `${POSTS_URL}?id=eq.${id}` ``
 3. Sætte `image` og `caption` i state ud fra det hentede post
 4. Bruge state som `value` i formularen
 5. Sende en PATCH-request i `handleSubmit`
@@ -434,7 +453,7 @@ Eksempel på submit:
 async function handleSubmit(event) {
   event.preventDefault();
 
-  await fetch(`${URL}?id=eq.${id}`, {
+  await fetch(`${POSTS_URL}?id=eq.${id}`, {
     method: "PATCH",
     headers,
     body: JSON.stringify({
@@ -498,7 +517,7 @@ useEffect(() => {
   async function getPosts() {
     setIsLoading(true);
 
-    const response = await fetch(URL, { headers });
+    const response = await fetch(POSTS_URL, { headers });
     const data = await response.json();
     setPosts(data);
 
@@ -555,7 +574,7 @@ Eksempel:
 
 ```jsx
 try {
-  const response = await fetch(URL, { headers });
+  const response = await fetch(POSTS_URL, { headers });
   const data = await response.json();
   setPosts(data);
 } catch (error) {
@@ -625,7 +644,7 @@ Det giver især mening sammen med `try/catch`.
 Et eksempel kunne se sådan her ud:
 
 ```jsx
-const response = await fetch(URL, { headers });
+const response = await fetch(POSTS_URL, { headers });
 
 if (!response.ok) {
   throw new Error("Noget gik galt");
@@ -666,7 +685,7 @@ Og i knappen:
 
 Du kan bruge samme idé til delete-knappen med en state som fx `isDeleting`.
 
-### 9.7 Saml `URL` og `headers` i en separat fil
+### 9.7 Saml REST-roden og `headers` i en separat fil
 
 Hvis du vil rydde lidt op, kan du samle de gentagne konstanter i én fil.
 
@@ -677,7 +696,7 @@ Du kan fx lave en fil som:
 med noget i den her stil:
 
 ```jsx
-export const URL = import.meta.env.VITE_SUPABASE_URL;
+export const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 
 export const headers = {
   apikey: import.meta.env.VITE_SUPABASE_APIKEY,
@@ -688,7 +707,9 @@ export const headers = {
 Og derefter importere dem i dine sider:
 
 ```jsx
-import { URL, headers } from "../lib/api";
+import { SUPABASE_URL, headers } from "../lib/api";
+
+const POSTS_URL = `${SUPABASE_URL}/posts`;
 ```
 
 Det er ikke nødvendigt, men det kan gøre koden mere overskuelig, når de samme ting bruges flere steder.

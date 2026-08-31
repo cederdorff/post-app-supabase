@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import PostCard from "../components/PostCard";
 
-const URL = import.meta.env.VITE_SUPABASE_URL;
+const POSTS_URL = `${import.meta.env.VITE_SUPABASE_URL}/posts?select=*,user:users(*)`;
 const headers = {
   apikey: import.meta.env.VITE_SUPABASE_APIKEY,
-  "Content-Type": "application/json",
+  "Content-Type": "application/json"
 };
 
 export default function HomePage() {
@@ -12,7 +12,7 @@ export default function HomePage() {
 
   useEffect(() => {
     async function getPosts() {
-      const response = await fetch(URL, { headers });
+      const response = await fetch(POSTS_URL, { headers });
       const data = await response.json();
       setPosts(data);
     }

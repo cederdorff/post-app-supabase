@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 
-const URL = import.meta.env.VITE_SUPABASE_URL;
+const POSTS_URL = `${import.meta.env.VITE_SUPABASE_URL}/posts`;
+const CURRENT_USER_ID = 1;
 const headers = {
   apikey: import.meta.env.VITE_SUPABASE_APIKEY,
-  "Content-Type": "application/json",
+  "Content-Type": "application/json"
 };
 
 export default function CreatePage() {
@@ -15,13 +16,14 @@ export default function CreatePage() {
   async function handleSubmit(event) {
     event.preventDefault();
 
-    await fetch(URL, {
+    await fetch(POSTS_URL, {
       method: "POST",
       headers,
       body: JSON.stringify({
         image: image.trim(),
         caption: caption.trim(),
-      }),
+        userId: CURRENT_USER_ID
+      })
     });
 
     navigate("/");
