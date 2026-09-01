@@ -18,17 +18,19 @@ export default function UpdatePage() {
 
   useEffect(() => {
     async function getPostAndUsers() {
-      const [postResponse, usersResponse] = await Promise.all([
-        fetch(`${POSTS_URL}?id=eq.${id}`, { headers }),
-        fetch(`${USERS_URL}?select=id,name,title&order=name.asc`, { headers })
-      ]);
+      const postResponse = await fetch(`${POSTS_URL}?id=eq.${id}`, { headers });
       const posts = await postResponse.json();
-      const usersData = await usersResponse.json();
       const post = posts[0];
 
       setImage(post.image);
       setCaption(post.caption);
       setUserId(String(post.userId));
+
+      const usersResponse = await fetch(
+        `${USERS_URL}?select=id,name,title&order=name.asc`,
+        { headers }
+      );
+      const usersData = await usersResponse.json();
       setUsers(usersData);
     }
 
