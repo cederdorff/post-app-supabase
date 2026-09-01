@@ -21,7 +21,7 @@ Branchen `posts-and-users` viser, hvordan den simple Post App kan opdeles i to r
 - `users(id, name, mail, title, image)`
 - `posts(id, createdAt, caption, image, userId)`
 
-`posts.userId` er en fremmednøgle til `users.id`. Appen henter posts og deres bruger gennem Supabase REST API og viser brugerens billede, navn og titel i feed og detaljevisning. Et nyt post oprettes med et fast `CURRENT_USER_ID`, som simulerer den aktuelle bruger. Update kan ændre postets billede og caption, men ikke dets bruger.
+`posts.userId` er en fremmednøgle til `users.id`. Appen henter posts og deres bruger gennem Supabase REST API og viser brugerens billede, navn og titel i feed og detaljevisning. På CreatePage og UpdatePage hentes alle users fra `users`-tabellen, så man kan vælge, hvilken user et post tilhører.
 
 I `.env` gemmes kun roden til Supabase REST API. De enkelte pages tilføjer selv `/posts` og de queries, de har brug for.
 

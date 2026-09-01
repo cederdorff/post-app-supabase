@@ -200,6 +200,7 @@ a:hover {
 }
 
 .form-field input,
+.form-field select,
 .form-field textarea {
   width: 100%;
   margin: 0;
@@ -218,6 +219,7 @@ a:hover {
 }
 
 .form-field input:hover,
+.form-field select:hover,
 .form-field textarea:hover {
   box-shadow:
     0 0 1px hsla(0, 0%, 0%, 0.6),
@@ -230,6 +232,7 @@ a:hover {
 }
 
 .form-field input:focus,
+.form-field select:focus,
 .form-field textarea:focus {
   outline: none;
   border-color: rgba(38, 76, 89, 0.35);

@@ -1,9 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 
 const POSTS_URL = `${import.meta.env.VITE_SUPABASE_URL}/posts`;
-// Simulates the currently logged-in user
-const CURRENT_USER_ID = 1;
+const USERS_URL = `${import.meta.env.VITE_SUPABASE_URL}/users`;
 const headers = {
   apikey: import.meta.env.VITE_SUPABASE_APIKEY,
   "Content-Type": "application/json"
@@ -13,6 +12,20 @@ export default function CreatePage() {
   const navigate = useNavigate();
   const [image, setImage] = useState("");
   const [caption, setCaption] = useState("");
+  const [userId, setUserId] = useState("");
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    async function getUsers() {
+      const response = await fetch(`${USERS_URL}?select=id,name,title&order=name.asc`, {
+        headers
+      });
+      const data = await response.json();
+      setUsers(data);
+    }
+
+    getUsers();
+  }, []);
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -23,7 +36,7 @@ export default function CreatePage() {
       body: JSON.stringify({
         image: image.trim(),
         caption: caption.trim(),
-        userId: CURRENT_USER_ID
+        userId: Number(userId)
       })
     });
 
@@ -35,6 +48,24 @@ export default function CreatePage() {
       <h1 className="page-title">Create Post</h1>
       <form className="post-form" onSubmit={handleSubmit}>
         <div className="form-grid">
+          <div className="form-field">
+            <label htmlFor="userId">User *</label>
+            <select
+              id="userId"
+              name="userId"
+              value={userId}
+              onChange={(event) => setUserId(event.target.value)}
+              required
+            >
+              <option value="">Select a user</option>
+              {users.map((user) => (
+                <option key={user.id} value={user.id}>
+                  {user.name}{user.title ? ` — ${user.title}` : ""}
+                </option>
+              ))}
+            </select>
+          </div>
+
           <div className="form-field">
             <label htmlFor="image">Image URL</label>
             <input

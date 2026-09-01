@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 
 const POSTS_URL = `${import.meta.env.VITE_SUPABASE_URL}/posts`;
+const USERS_URL = `${import.meta.env.VITE_SUPABASE_URL}/users`;
 const headers = {
   apikey: import.meta.env.VITE_SUPABASE_APIKEY,
   "Content-Type": "application/json"
@@ -12,18 +13,26 @@ export default function UpdatePage() {
   const navigate = useNavigate();
   const [image, setImage] = useState("");
   const [caption, setCaption] = useState("");
+  const [userId, setUserId] = useState("");
+  const [users, setUsers] = useState([]);
 
   useEffect(() => {
-    async function getPost() {
-      const response = await fetch(`${POSTS_URL}?id=eq.${id}`, { headers });
-      const posts = await response.json();
+    async function getPostAndUsers() {
+      const [postResponse, usersResponse] = await Promise.all([
+        fetch(`${POSTS_URL}?id=eq.${id}`, { headers }),
+        fetch(`${USERS_URL}?select=id,name,title&order=name.asc`, { headers })
+      ]);
+      const posts = await postResponse.json();
+      const usersData = await usersResponse.json();
       const post = posts[0];
 
       setImage(post.image);
       setCaption(post.caption);
+      setUserId(String(post.userId));
+      setUsers(usersData);
     }
 
-    getPost();
+    getPostAndUsers();
   }, [id]);
 
   async function handleSubmit(event) {
@@ -34,7 +43,8 @@ export default function UpdatePage() {
       headers,
       body: JSON.stringify({
         image: image.trim(),
-        caption: caption.trim()
+        caption: caption.trim(),
+        userId: Number(userId)
       })
     });
 
@@ -47,6 +57,24 @@ export default function UpdatePage() {
 
       <form className="post-form" onSubmit={handleSubmit}>
         <div className="form-grid">
+          <div className="form-field">
+            <label htmlFor="userId">User *</label>
+            <select
+              id="userId"
+              name="userId"
+              value={userId}
+              onChange={(event) => setUserId(event.target.value)}
+              required
+            >
+              <option value="">Select a user</option>
+              {users.map((user) => (
+                <option key={user.id} value={user.id}>
+                  {user.name}{user.title ? ` — ${user.title}` : ""}
+                </option>
+              ))}
+            </select>
+          </div>
+
           <div className="form-field">
             <label htmlFor="image">Image URL</label>
             <input
