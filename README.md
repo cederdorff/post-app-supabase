@@ -25,9 +25,64 @@ Branchen `posts-and-users` viser, hvordan den simple Post App kan opdeles i to r
 
 I `.env` gemmes kun roden til Supabase REST API. De enkelte pages tilføjer selv `/posts` og de queries, de har brug for.
 
-Branchen bruger den enkle relationelle query `select=*,user:users(*)`. I undervisningen kan queryen derefter afgrænses til bestemte felter som et selvstændigt eksempel.
+Udgangspunktet bruger den enkle relationelle query `select=*,user:users(*)`. På branchen `feature/performance-examples` er queryen afgrænset til de felter, UI'et bruger, og `PostDetailPage` bliver lazy-loaded som et eksempel på route-baseret code splitting.
 
 > Resten af README'en beskriver den oprindelige CRUD-øvelse og dens simple `posts`-model uden relationer. Race-05-demonstrationen fortsætter fra dette udgangspunkt med SQL-filen `03-posts-and-users.sql` og koden på denne branch.
+
+## Demonstration: performance-eksempler
+
+Branchen `feature/performance-examples` fortsætter fra `feature/select-post-user` med to små ændringer, der matcher performance-undervisningen:
+
+1. Supabase-queryen henter kun de felter, som Post Appens UI viser.
+2. `PostDetailPage` bliver først hentet, når brugeren åbner detaljesiden.
+
+Det er demonstrationseksempler – ikke ændringer, der automatisk gør alle apps mærkbart hurtigere. Start med en baseline, lav én ændring, og mål igen under de samme forhold.
+
+### Eksempel 1: Hent kun de felter, UI'et bruger
+
+Udgangspunktet henter alle felter fra både `posts` og `users`:
+
+```http
+GET /rest/v1/posts?select=*,user:users(*)
+```
+
+Denne branch henter kun felterne, der bruges i `PostCard` og `PostDetailPage`:
+
+```http
+GET /rest/v1/posts?select=id,caption,image,user:users(id,name,title,image)
+```
+
+Sammenlign request URL, response og transferred bytes i Network. Hvis forskellen er meget lille, kan en anden forbedring stadig være vigtigere.
+
+### Eksempel 2: Lazy-load detaljesiden
+
+Udgangspunktet importerer `PostDetailPage` direkte i `App.jsx`. Denne branch bruger `lazy()` og `Suspense`, så detaljesidens JavaScript bliver hentet, når routen åbnes.
+
+Kør en production build, og sammenlign JavaScript-filerne før og efter:
+
+```bash
+npm run build
+npm run preview
+```
+
+Kontrollér derefter i Network:
+
+- Hvilke JavaScript-filer hentes på forsiden?
+- Kommer der en ekstra JavaScript-fil, når du åbner `/posts/:id`?
+- Er ændringen stor nok til at have betydning i denne app?
+
+### Dokumentér før og efter
+
+Notér mindst:
+
+|                      | Før | Efter |
+| -------------------- | --- | ----- |
+| Route og testforhold |     |       |
+| Antal requests       |     |       |
+| Transferred bytes    |     |       |
+| Det vigtigste fund   |     |       |
+
+Sammenlign hele branchen med udgangspunktet: [feature/select-post-user...feature/performance-examples](https://github.com/cederdorff/post-app-supabase/compare/feature/select-post-user...feature/performance-examples).
 
 ## 1. Startprojekt
 
