@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import PostCard from "../components/PostCard";
 
-const URL = import.meta.env.VITE_SUPABASE_URL;
+const POSTS_URL = `${import.meta.env.VITE_SUPABASE_URL}/posts`;
 const headers = {
   apikey: import.meta.env.VITE_SUPABASE_APIKEY,
   "Content-Type": "application/json"
@@ -22,7 +22,7 @@ export default function HomePage() {
 
       params.set("order", sort); // Add sorting parameter
 
-      const response = await fetch(`${URL}?${params}`, { headers }); // Fetch posts with query parameters
+      const response = await fetch(`${POSTS_URL}?${params}`, { headers }); // Fetch posts with query parameters
       const data = await response.json(); // Parse response as JSON
       setPosts(data); // Update state with fetched posts
     }
