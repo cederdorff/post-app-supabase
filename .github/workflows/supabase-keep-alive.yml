@@ -9,9 +9,9 @@ jobs:
   ping:
     runs-on: ubuntu-latest
     steps:
-      # VITE_SUPABASE_URL peger direkte på posts-tabellen (.../rest/v1/posts)
+      # VITE_SUPABASE_URL ender på /rest/v1, så tabellen /posts tilføjes her
       - name: Ping Supabase
         run: |
           curl --fail -sS -o /dev/null \
-            "${{ vars.VITE_SUPABASE_URL }}?select=id&limit=1" \
+            "${{ vars.VITE_SUPABASE_URL }}/posts?select=id&limit=1" \
             -H "apikey: ${{ vars.VITE_SUPABASE_APIKEY }}"
