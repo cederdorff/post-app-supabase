@@ -25,6 +25,13 @@ Man bruger det typisk til at:
 
 I offentlige repositories er GitHub Actions gratis.
 
+```mermaid
+flowchart LR
+  T["Trigger<br/>push, tidspunkt eller klik"] --> W["Workflow<br/>.yml fil i .github/workflows/"]
+  W --> J["Job<br/>kører på en runner i skyen"]
+  J --> S["Steps<br/>kommandoer med run:"]
+```
+
 ### Hvad er en `.yml` fil?
 
 Workflows skrives i **YAML** (`.yml`). Det er et tekstformat til data og opsætning, ligesom JSON i `package.json`. Du skal ikke kunne skrive det selv, men det er godt at kunne læse det:
@@ -89,6 +96,19 @@ Workflowet laver ét lille GET-request til en tabel i din database, præcis som 
 GET https://dit-project-id.supabase.co/rest/v1/posts?select=*&limit=1
 ```
 
+```mermaid
+sequenceDiagram
+  participant GH as GitHub Actions
+  participant SB as Supabase API
+  participant DB as Database
+  Note over GH: Mandag og torsdag kl. 06 (cron)
+  GH->>SB: GET /rest/v1/posts?select=*&limit=1
+  SB->>DB: Hent én række fra posts
+  DB-->>SB: Række (eller tom liste)
+  SB-->>GH: 200 OK
+  Note over GH: Kørslen bliver grøn ✅
+```
+
 Det henter højst én række, men det er en rigtig forespørgsel mod databasen, så Supabase kan se, at projektet bliver brugt. Med mandag og torsdag går der højst 4 dage mellem to ping.
 
 ## 3. Opsætning trin for trin
@@ -97,6 +117,13 @@ Det henter højst én række, men det er en rigtig forespørgsel mod databasen, 
 
 Har du deployet din app til GitHub Pages, ligger dine Supabase-værdier allerede på GitHub. Workflowet bruger de samme:
 
+```mermaid
+flowchart LR
+  L[".env<br/>på din computer"] -. samme værdier .-> E["github-pages-deployment<br/>VITE_SUPABASE_URL<br/>VITE_SUPABASE_APIKEY"]
+  E --> D["deploy.yml<br/>bygger og deployer appen"]
+  E --> K["supabase-keep-alive.yml<br/>pinger databasen"]
+```
+
 1. Gå til **Settings** -> **Environments** og åbn dit deploy-environment. I opgaverne og de tidligere øvelser hedder det `github-pages-deployment`. Bruger du GitHubs standard-workflow til Pages, hedder det typisk `github-pages`.
 2. Se under **Environment variables**, hvad dine to Supabase-variabler hedder. Typisk er det disse:
 
@@ -104,6 +131,8 @@ Har du deployet din app til GitHub Pages, ligger dine Supabase-værdier allerede
 | ---------------------- | -------------------------------------------- |
 | `VITE_SUPABASE_URL`    | `https://dit-project-id.supabase.co/rest/v1` |
 | `VITE_SUPABASE_APIKEY` | `sb_publishable_...`                         |
+
+![Environment variables under Settings -> Environments -> github-pages-deployment](images/environment-variables.webp)
 
 > **Har du ikke deployet til GitHub Pages?** Så læg værdierne fra din `.env` fil under **Settings** -> **Secrets and variables** -> **Actions** -> fanen **Variables** i stedet. Husk så at slette `environment:`-linjen i workflowet (se 3.2).
 
@@ -175,7 +204,12 @@ Du behøver ikke vente til mandag:
 1. Gå til fanen **Actions** i dit repository
 2. Vælg **Supabase keep alive** i listen til venstre
 3. Klik **Run workflow** -> **Run workflow**
+
+![Run workflow-knappen under Actions -> Supabase keep alive](images/run-workflow.webp)
+
 4. Tjek at kørslen bliver grøn ✅
+
+![En grøn kørsel af Supabase keep alive](images/workflow-success.webp)
 
 Fra nu af kører det automatisk mandag og torsdag.
 
