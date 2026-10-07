@@ -746,44 +746,15 @@ Brug de samme værdier som i din `.env` fil. Husk, at URL'en slutter på `/rest/
 
 Gratis Supabase-projekter bliver sat på pause, hvis databasen ikke bliver brugt i ca. en uge. Så holder din app op med at virke, indtil du starter projektet igen i Supabase.
 
-Projektet har et workflow, der forhindrer det: `.github/workflows/supabase-keep-alive.yml`. Det henter én række fra en tabel mandag og torsdag. Det er nok til, at Supabase kan se, at databasen bliver brugt.
+Projektet har et workflow, der forhindrer det: `.github/workflows/supabase-keep-alive.yml`. Det henter én række fra tabellen `posts` mandag og torsdag og bruger de samme to variabler, som du tilføjede i 10.3.
 
-### 11.1 Sådan virker det
-
-Workflowet laver det samme GET-request, som du selv har lavet i Thunder Client:
-
-```txt
-GET https://dit-project-id.supabase.co/rest/v1/posts?select=*&limit=1
-```
-
-Det bruger de samme to variabler, som du tilføjede i 10.3, så der er ikke noget ekstra at sætte op.
-
-### 11.2 Tilpas tabelnavnet
-
-Workflowet pinger tabellen `posts`. Bruger du workflowet i et andet projekt, skal du rette `PING_TABLE` til en tabel, som findes i **det** projekt:
-
-```yaml
-env:
-  # Tilpas til en tabel, der findes i dit Supabase-projekt
-  PING_TABLE: posts
-```
-
-### 11.3 Test at det virker
+Test at det virker:
 
 1. Gå til **Actions** -> **Supabase keep alive**
 2. Klik **Run workflow**
 3. Tjek at kørslen bliver grøn
 
-Hvis den bliver rød, så åbn kørslen og læs fejlen:
-
-- `404` betyder, at tabellen ikke findes. Ret `PING_TABLE`.
-- `401` betyder, at URL'en eller nøglen er forkert. Tjek dine variabler fra 10.3.
-
-### 11.4 Hvorfor ikke bare pinge `/rest/v1`?
-
-Man kunne tro, at det var nok at pinge roden af API'et. Men `/rest/v1` kræver en secret key og svarer `401 Secret API key required` med en publishable key. Derfor pinger vi en tabel, som den publishable key har adgang til.
-
-> **Vigtigt:** GitHub slår automatisk planlagte workflows fra, hvis der ikke har været commits i dit repository i 60 dage. Du får en mail om det. Skal dit projekt holdes i live længe uden ændringer, så gå til **Actions** og slå workflowet til igen.
+Læs [guiden til Supabase keep-alive](docs/supabase-keep-alive.md) for at forstå, hvad GitHub Actions er, hvordan workflowet virker, hvordan du fejlfinder, og hvordan du sætter det op i dine egne projekter.
 
 ## 12. Refleksion
 
