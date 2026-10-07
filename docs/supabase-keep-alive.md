@@ -28,6 +28,39 @@ Typiske ting man bruger GitHub Actions til:
 
 I offentlige repositories er GitHub Actions gratis.
 
+### Hvad er en `.yml` fil?
+
+Workflows skrives i **YAML** (filendelsen `.yml` eller `.yaml`). YAML er bare et tekstformat til at beskrive data og opsætning, ligesom JSON, som du kender fra `package.json`. Du skal ikke kunne skrive YAML selv, men det er godt at kunne læse det.
+
+Her er de samme data i JSON og i YAML:
+
+```json
+{
+  "name": "Supabase keep alive",
+  "on": {
+    "workflow_dispatch": null
+  },
+  "branches": ["main"]
+}
+```
+
+```yaml
+name: Supabase keep alive
+on:
+  workflow_dispatch:
+branches:
+  - main
+```
+
+De vigtigste regler:
+
+- `navn: værdi` svarer til `"navn": "værdi"` i JSON
+- **Indrykning bestemmer strukturen** i stedet for `{ }`. Det, der er rykket ind under `on:`, hører til `on`
+- `-` starter et punkt i en liste, ligesom `[ ]` i JSON
+- `#` starter en kommentar
+
+> **Pas på indrykningen:** Brug mellemrum, ikke tabs, og ryk ind præcis som i eksemplerne. Er en linje rykket forkert ind, forstår GitHub ikke workflowet, og det vil ikke køre. Kopiér derfor hele filen i ét stykke.
+
 ### Begreberne
 
 | Begreb       | Hvad det er                                                                                   |
