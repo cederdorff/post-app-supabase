@@ -10,10 +10,13 @@ jobs:
     # Variablerne ligger i samme environment som deploy-workflowet
     environment: github-pages-deployment
     runs-on: ubuntu-latest
+    env:
+      # Tilpas til en tabel, der findes i dit Supabase-projekt
+      PING_TABLE: posts
     steps:
-      # VITE_SUPABASE_URL ender på /rest/v1, så tabellen /posts tilføjes her
+      # VITE_SUPABASE_URL ender på /rest/v1, så tabelnavnet tilføjes her
       - name: Ping Supabase
         run: |
           curl --fail -sS -o /dev/null \
-            "${{ vars.VITE_SUPABASE_URL }}/posts?select=id&limit=1" \
+            "${{ vars.VITE_SUPABASE_URL }}/$PING_TABLE?select=*&limit=1" \
             -H "apikey: ${{ vars.VITE_SUPABASE_APIKEY }}"

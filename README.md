@@ -699,7 +699,93 @@ import { POSTS_URL, headers } from "../lib/api";
 
 Det er ikke nødvendigt, men det kan gøre koden mere overskuelig, når de samme ting bruges flere steder.
 
-## 10. Refleksion
+## 10. Deploy til GitHub Pages
+
+Når appen virker lokalt, kan du lægge den online med GitHub Pages. Projektet har allerede et workflow til det i `.github/workflows/deploy.yml`, som bygger og deployer appen, hver gang du pusher til `main`.
+
+### 10.1 Ret `base` i `package.json`
+
+GitHub Pages lægger din app på `https://dit-brugernavn.github.io/dit-repo-navn/`. Derfor skal `base` i `package.json` matche navnet på **dit** repository:
+
+```json
+"base": "/dit-repo-navn/",
+```
+
+Hvis `base` ikke passer, får du en blank side online, selvom alt virker lokalt.
+
+### 10.2 Slå GitHub Pages til
+
+1. Gå til dit repository på GitHub
+2. Gå til **Settings** -> **Pages**
+3. Vælg **GitHub Actions** under **Source**
+
+### 10.3 Tilføj dine Supabase-variabler
+
+Din `.env` fil bliver ikke pushet til GitHub (den står i `.gitignore`). Derfor skal GitHub have de samme værdier et andet sted:
+
+1. Gå til **Settings** -> **Environments**
+2. Opret et environment med navnet `github-pages-deployment` (hvis det ikke allerede findes)
+3. Tilføj to **Environment variables**:
+
+| Name                   | Value                                         |
+| ---------------------- | --------------------------------------------- |
+| `VITE_SUPABASE_URL`    | `https://dit-project-id.supabase.co/rest/v1`  |
+| `VITE_SUPABASE_APIKEY` | din `sb_publishable_...` key                  |
+
+Brug de samme værdier som i din `.env` fil. Husk, at URL'en slutter på `/rest/v1` uden tabelnavn.
+
+> **Variables eller secrets?** Det er fint, at det er variables. Alle `VITE_`-variabler bliver bygget ind i den JavaScript, der ligger på GitHub Pages, så alle kan alligevel se dem i browserens DevTools. Den publishable key er lavet til at være offentlig. Det, der beskytter dine data, er Row Level Security (RLS) i Supabase. Brug aldrig din `sb_secret_...` key i frontend-kode.
+
+### 10.4 Deploy
+
+1. Push til `main`
+2. Gå til **Actions** og se workflowet **Deploy static content to Pages** køre
+3. Når det er grønt, finder du linket til din app under **Settings** -> **Pages**
+
+## 11. Hold dit Supabase-projekt i live
+
+Gratis Supabase-projekter bliver sat på pause, hvis databasen ikke bliver brugt i ca. en uge. Så holder din app op med at virke, indtil du starter projektet igen i Supabase.
+
+Projektet har et workflow, der forhindrer det: `.github/workflows/supabase-keep-alive.yml`. Det henter én række fra en tabel mandag og torsdag. Det er nok til, at Supabase kan se, at databasen bliver brugt.
+
+### 11.1 Sådan virker det
+
+Workflowet laver det samme GET-request, som du selv har lavet i Thunder Client:
+
+```txt
+GET https://dit-project-id.supabase.co/rest/v1/posts?select=*&limit=1
+```
+
+Det bruger de samme to variabler, som du tilføjede i 10.3, så der er ikke noget ekstra at sætte op.
+
+### 11.2 Tilpas tabelnavnet
+
+Workflowet pinger tabellen `posts`. Bruger du workflowet i et andet projekt, skal du rette `PING_TABLE` til en tabel, som findes i **det** projekt:
+
+```yaml
+env:
+  # Tilpas til en tabel, der findes i dit Supabase-projekt
+  PING_TABLE: posts
+```
+
+### 11.3 Test at det virker
+
+1. Gå til **Actions** -> **Supabase keep alive**
+2. Klik **Run workflow**
+3. Tjek at kørslen bliver grøn
+
+Hvis den bliver rød, så åbn kørslen og læs fejlen:
+
+- `404` betyder, at tabellen ikke findes. Ret `PING_TABLE`.
+- `401` betyder, at URL'en eller nøglen er forkert. Tjek dine variabler fra 10.3.
+
+### 11.4 Hvorfor ikke bare pinge `/rest/v1`?
+
+Man kunne tro, at det var nok at pinge roden af API'et. Men `/rest/v1` kræver en secret key og svarer `401 Secret API key required` med en publishable key. Derfor pinger vi en tabel, som den publishable key har adgang til.
+
+> **Vigtigt:** GitHub slår automatisk planlagte workflows fra, hvis der ikke har været commits i dit repository i 60 dage. Du får en mail om det. Skal dit projekt holdes i live længe uden ændringer, så gå til **Actions** og slå workflowet til igen.
+
+## 12. Refleksion
 
 Svar kort på disse spørgsmål:
 
