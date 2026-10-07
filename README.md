@@ -130,8 +130,14 @@ Målet er bare at sikre, at endpointet virker, før I går videre til React-kode
 Opret en `.env` fil i projektets rod:
 
 ```dotenv
-VITE_SUPABASE_URL=https://dit-project-id.supabase.co/rest/v1/posts
+VITE_SUPABASE_URL=https://dit-project-id.supabase.co/rest/v1
 VITE_SUPABASE_APIKEY=din_sb_publishable_key
+```
+
+Bemærk, at `VITE_SUPABASE_URL` slutter på `/rest/v1` uden tabelnavn. I koden tilføjes `/posts`, fx:
+
+```jsx
+const POSTS_URL = `${import.meta.env.VITE_SUPABASE_URL}/posts`;
 ```
 
 ## 3. Få overblik over starteren
@@ -156,7 +162,7 @@ Mål: Vis alle posts på forsiden.
 
 I skal:
 
-1. Bruge `fetch(URL, { headers })`
+1. Bruge `fetch(POSTS_URL, { headers })`
 2. Konvertere svaret med `await response.json()`
 3. Gemme data i `posts`
 4. Vise posts i UI
@@ -174,7 +180,7 @@ Spørgsmål:
 ```jsx
 useEffect(() => {
   async function loadPosts() {
-    const response = await fetch(URL, { headers });
+    const response = await fetch(POSTS_URL, { headers });
     const data = await response.json();
     setPosts(data);
   }
@@ -287,7 +293,7 @@ Det vigtige her er:
 
 ```jsx
 async function handleSubmit(postData) {
-  await fetch(URL, {
+  await fetch(POSTS_URL, {
     method: "POST",
     headers,
     body: JSON.stringify(postData),
@@ -351,7 +357,7 @@ Spørgsmål:
 ```jsx
 useEffect(() => {
   async function loadPost() {
-    const response = await fetch(`${URL}?id=eq.${id}`, { headers });
+    const response = await fetch(`${POSTS_URL}?id=eq.${id}`, { headers });
     const data = await response.json();
     setPost(data[0]);
   }
@@ -360,7 +366,7 @@ useEffect(() => {
 }, [id]);
 
 async function handleSubmit(postData) {
-  await fetch(`${URL}?id=eq.${id}`, {
+  await fetch(`${POSTS_URL}?id=eq.${id}`, {
     method: "PATCH",
     headers,
     body: JSON.stringify(postData),
@@ -410,7 +416,7 @@ Det smarte her er, at detail-siden både viser og sletter det samme post ud fra 
 ```jsx
 useEffect(() => {
   async function loadPost() {
-    const response = await fetch(`${URL}?id=eq.${id}`, { headers });
+    const response = await fetch(`${POSTS_URL}?id=eq.${id}`, { headers });
     const data = await response.json();
     setPost(data[0]);
   }
@@ -423,7 +429,7 @@ async function handleDelete() {
 
   if (!confirmed) return;
 
-  await fetch(`${URL}?id=eq.${id}`, {
+  await fetch(`${POSTS_URL}?id=eq.${id}`, {
     method: "DELETE",
     headers,
   });
@@ -567,7 +573,7 @@ Start med at tilføje `try/catch` i:
 
 ```jsx
 try {
-  const response = await fetch(URL, { headers });
+  const response = await fetch(POSTS_URL, { headers });
   const data = await response.json();
   setPosts(data);
 } catch (error) {
@@ -628,7 +634,7 @@ Det gør jeres fejlflow mere tydeligt og mere robust.
 <summary>Vejledende løsning</summary>
 
 ```jsx
-const response = await fetch(URL, { headers });
+const response = await fetch(POSTS_URL, { headers });
 
 if (!response.ok) {
   throw new Error("Could not load posts.");
@@ -678,4 +684,4 @@ Hvis I bliver hurtigt færdige:
 - Tilføj en besked når der ingen posts er
 - Tilføj lidt bedre fejltekst
 - Gør loading-teksterne mere tydelige
-- Undersøg hvordan man kan samle `URL` og `headers` i én fil
+- Undersøg hvordan man kan samle `POSTS_URL` og `headers` i én fil

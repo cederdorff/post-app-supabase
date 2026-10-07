@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 
-const URL = import.meta.env.VITE_SUPABASE_URL;
+const POSTS_URL = `${import.meta.env.VITE_SUPABASE_URL}/posts`;
 const headers = {
   apikey: import.meta.env.VITE_SUPABASE_APIKEY,
   "Content-Type": "application/json"
@@ -21,7 +21,7 @@ export default function PostDetailPage() {
       setErrorMessage("");
 
       try {
-        const response = await fetch(`${URL}?id=eq.${id}`, { headers });
+        const response = await fetch(`${POSTS_URL}?id=eq.${id}`, { headers });
 
         if (!response.ok) {
           throw new Error("Could not load post details.");
@@ -53,7 +53,7 @@ export default function PostDetailPage() {
     setErrorMessage("");
 
     try {
-      const response = await fetch(`${URL}?id=eq.${id}`, { method: "DELETE", headers });
+      const response = await fetch(`${POSTS_URL}?id=eq.${id}`, { method: "DELETE", headers });
 
       if (!response.ok) {
         throw new Error("Could not delete post.");

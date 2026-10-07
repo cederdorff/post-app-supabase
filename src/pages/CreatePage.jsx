@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import PostForm from "../components/PostForm";
 
-const URL = import.meta.env.VITE_SUPABASE_URL;
+const POSTS_URL = `${import.meta.env.VITE_SUPABASE_URL}/posts`;
 const headers = {
   apikey: import.meta.env.VITE_SUPABASE_APIKEY,
   "Content-Type": "application/json"
@@ -18,7 +18,7 @@ export default function CreatePage() {
     setErrorMessage("");
 
     try {
-      const response = await fetch(URL, {
+      const response = await fetch(POSTS_URL, {
         method: "POST",
         headers,
         body: JSON.stringify(postData)
