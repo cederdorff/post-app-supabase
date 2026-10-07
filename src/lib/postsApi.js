@@ -1,8 +1,9 @@
-const POSTS_URL = `${import.meta.env.VITE_SUPABASE_URL}/posts`;
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const POSTS_URL = `${SUPABASE_URL}/posts`;
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_APIKEY;
 
 function assertSupabaseConfig() {
-  if (!POSTS_URL || !SUPABASE_KEY) {
+  if (!SUPABASE_URL || !SUPABASE_KEY) {
     throw new Error("Supabase URL or API key is missing. Check your .env file.");
   }
 }
