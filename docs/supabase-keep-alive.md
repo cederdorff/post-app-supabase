@@ -97,7 +97,7 @@ Det henter højst én række, men det er en rigtig forespørgsel mod databasen, 
 
 Har du deployet din app til GitHub Pages, ligger dine Supabase-værdier allerede på GitHub. Workflowet bruger de samme:
 
-1. Gå til **Settings** -> **Environments** -> dit deploy-environment, fx `github-pages-deployment`
+1. Gå til **Settings** -> **Environments** og åbn dit deploy-environment. I opgaverne og de tidligere øvelser hedder det `github-pages-deployment`. Bruger du GitHubs standard-workflow til Pages, hedder det typisk `github-pages`.
 2. Se under **Environment variables**, hvad dine to Supabase-variabler hedder. Typisk er det disse:
 
 | Variabel               | Eksempel                                     |
@@ -105,11 +105,7 @@ Har du deployet din app til GitHub Pages, ligger dine Supabase-værdier allerede
 | `VITE_SUPABASE_URL`    | `https://dit-project-id.supabase.co/rest/v1` |
 | `VITE_SUPABASE_APIKEY` | `sb_publishable_...`                         |
 
-> **Hvad hedder dit environment?** Kig efter `environment:` -> `name:` i dit deploy-workflow i `.github/workflows/`. I kursusprojekterne hedder det `github-pages-deployment`, men bruger du GitHubs standard-workflow, hedder det typisk `github-pages`.
-
 > **Har du ikke deployet til GitHub Pages?** Så læg værdierne fra din `.env` fil under **Settings** -> **Secrets and variables** -> **Actions** -> fanen **Variables** i stedet. Husk så at slette `environment:`-linjen i workflowet (se 3.2).
-
-> **Bemærk:** Slutter din URL ikke på `/rest/v1` (fx fordi du bruger `supabase-js`), så tilføj `/rest/v1` i URL'en i workflowet.
 
 > **Variables eller secrets?** Variables er fint. Den publishable key er lavet til at være offentlig og bliver alligevel bygget ind i din frontend. Dine data beskyttes af Row Level Security (RLS) i Supabase. En `sb_secret_...` key skal derimod altid ligge som **secret**.
 
@@ -144,11 +140,10 @@ jobs:
 
 Tilpas til dit projekt:
 
-- **`environment:`** Skriv navnet på dit deploy-environment, hvis det ikke hedder `github-pages-deployment`.
+- **`environment:`** Skriv navnet på dit deploy-environment fra 3.1. Har du ikke deployet til GitHub Pages, så slet linjen og kommentaren over den.
 - **`PING_TABLE:`** Skriv navnet på en tabel, der findes i **dit** projekt, fx `posts`, `users` eller `products`.
 - **Variabelnavne:** Navnene i `vars.VITE_SUPABASE_URL` og `vars.VITE_SUPABASE_APIKEY` skal være præcis de samme som dem, du så under **Environment variables** i 3.1. Hedder dine fx `VITE_SUPABASE_ANON_KEY`, så skriv `vars.VITE_SUPABASE_ANON_KEY`. Du kan også se navnene i din `.env` fil og i dit deploy-workflow under `env:`.
-
-> **Har du ikke deployet til GitHub Pages?** Så slet linjen `environment: github-pages-deployment` og kommentaren over den. Så henter workflowet variablerne fra repository variables i stedet.
+- **URL:** Slutter din URL ikke på `/rest/v1` (fx fordi du bruger `supabase-js`), så skriv `/rest/v1/$PING_TABLE` i stedet for `/$PING_TABLE` i URL'en.
 
 ### 3.3 Hvad gør linjerne?
 

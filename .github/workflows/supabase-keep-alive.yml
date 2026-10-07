@@ -7,7 +7,7 @@ on:
 
 jobs:
   ping:
-    # Variablerne ligger i samme environment som deploy-workflowet
+    # Henter variablerne fra samme environment som dit deploy-workflow
     environment: github-pages-deployment
     runs-on: ubuntu-latest
     env:
