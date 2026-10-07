@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import PageHeading from "../components/PageHeading";
 
-const URL = import.meta.env.VITE_SUPABASE_URL;
+const POSTS_URL = `${import.meta.env.VITE_SUPABASE_URL}/posts`;
 const headers = {
   apikey: import.meta.env.VITE_SUPABASE_APIKEY,
   "Content-Type": "application/json",
@@ -15,7 +15,7 @@ export default function PostDetailPage() {
 
   useEffect(() => {
     async function getPost() {
-      const response = await fetch(`${URL}?id=eq.${id}`, { headers });
+      const response = await fetch(`${POSTS_URL}?id=eq.${id}`, { headers });
       const data = await response.json();
       setPost(data[0]);
     }
@@ -28,7 +28,7 @@ export default function PostDetailPage() {
 
     if (!confirmed) return;
 
-    await fetch(`${URL}?id=eq.${id}`, { method: "DELETE", headers });
+    await fetch(`${POSTS_URL}?id=eq.${id}`, { method: "DELETE", headers });
     navigate("/");
   }
 
