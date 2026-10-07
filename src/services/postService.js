@@ -1,4 +1,4 @@
-const URL = import.meta.env.VITE_SUPABASE_URL;
+const POSTS_URL = `${import.meta.env.VITE_SUPABASE_URL}/posts`;
 
 const headers = {
   apikey: import.meta.env.VITE_SUPABASE_APIKEY,
@@ -6,20 +6,20 @@ const headers = {
 };
 
 export async function getAll() {
-  const response = await fetch(`${URL}?order=created_at.desc`, { headers });
+  const response = await fetch(`${POSTS_URL}?order=created_at.desc`, { headers });
 
   return response.json();
 }
 
 export async function getById(id) {
-  const response = await fetch(`${URL}?id=eq.${id}`, { headers });
+  const response = await fetch(`${POSTS_URL}?id=eq.${id}`, { headers });
 
   const posts = await response.json();
   return posts[0] ?? null;
 }
 
 export async function create(post) {
-  await fetch(URL, {
+  await fetch(POSTS_URL, {
     headers,
     method: "POST",
     body: JSON.stringify(post),
@@ -27,7 +27,7 @@ export async function create(post) {
 }
 
 export async function update(id, post) {
-  await fetch(`${URL}?id=eq.${id}`, {
+  await fetch(`${POSTS_URL}?id=eq.${id}`, {
     headers,
     method: "PATCH",
     body: JSON.stringify(post),
@@ -35,7 +35,7 @@ export async function update(id, post) {
 }
 
 export async function remove(id) {
-  await fetch(`${URL}?id=eq.${id}`, {
+  await fetch(`${POSTS_URL}?id=eq.${id}`, {
     headers,
     method: "DELETE",
   });
