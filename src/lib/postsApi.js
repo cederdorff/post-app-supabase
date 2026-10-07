@@ -1,4 +1,4 @@
-const POSTS_URL = import.meta.env.VITE_SUPABASE_URL;
+const POSTS_URL = `${import.meta.env.VITE_SUPABASE_URL}/posts`;
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_APIKEY;
 
 function assertSupabaseConfig() {
