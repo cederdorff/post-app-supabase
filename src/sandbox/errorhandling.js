@@ -1,11 +1,11 @@
-const URL = import.meta.env.VITE_SUPABASE_URL;
+const POSTS_URL = `${import.meta.env.VITE_SUPABASE_URL}/posts`;
 const headers = {
   apikey: import.meta.env.VITE_SUPABASE_APIKEY,
   "Content-Type": "application/json"
 };
 
 export async function getPost(id) {
-  const response = await fetch(`${URL}?id=eq.${id}`, { headers });
+  const response = await fetch(`${POSTS_URL}?id=eq.${id}`, { headers });
   const data = await response.json();
   console.log(data);
   const post = data[0];
