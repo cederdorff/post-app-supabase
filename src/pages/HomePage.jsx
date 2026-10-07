@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import PostCard from "../components/PostCard";
-import { URL, headers } from "../lib/api";
+import { POSTS_URL, headers } from "../lib/api";
 
 export default function HomePage() {
   const [posts, setPosts] = useState([]);
@@ -13,7 +13,7 @@ export default function HomePage() {
       setErrorMessage("");
 
       try {
-        const response = await fetch(URL, { headers });
+        const response = await fetch(POSTS_URL, { headers });
 
         if (!response.ok) {
           throw new Error("Kunne ikke hente posts.");

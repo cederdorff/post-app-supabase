@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
-import { URL, headers } from "../lib/api";
+import { POSTS_URL, headers } from "../lib/api";
 
 export default function PostDetailPage() {
   const { id } = useParams();
@@ -16,7 +16,7 @@ export default function PostDetailPage() {
       setErrorMessage("");
 
       try {
-        const response = await fetch(`${URL}?id=eq.${id}`, { headers });
+        const response = await fetch(`${POSTS_URL}?id=eq.${id}`, { headers });
 
         if (!response.ok) {
           throw new Error("Kunne ikke hente post.");
@@ -50,7 +50,7 @@ export default function PostDetailPage() {
     setErrorMessage("");
 
     try {
-      const response = await fetch(`${URL}?id=eq.${id}`, {
+      const response = await fetch(`${POSTS_URL}?id=eq.${id}`, {
         method: "DELETE",
         headers,
       });

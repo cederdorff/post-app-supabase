@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { URL, headers } from "../lib/api";
+import { POSTS_URL, headers } from "../lib/api";
 
 export default function CreatePage() {
   const navigate = useNavigate();
@@ -16,7 +16,7 @@ export default function CreatePage() {
     setErrorMessage("");
 
     try {
-      const response = await fetch(URL, {
+      const response = await fetch(POSTS_URL, {
         method: "POST",
         headers,
         body: JSON.stringify({
