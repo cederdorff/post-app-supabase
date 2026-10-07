@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 
-const URL = import.meta.env.VITE_SUPABASE_URL;
+const POSTS_URL = `${import.meta.env.VITE_SUPABASE_URL}/posts`;
 const headers = {
   apikey: import.meta.env.VITE_SUPABASE_APIKEY,
   "Content-Type": "application/json",
@@ -16,7 +16,7 @@ export default function PostDetailPage() {
   useEffect(() => {
     async function getPost() {
       try {
-        const response = await fetch(`${URL}?id=eq.${id}`, { headers });
+        const response = await fetch(`${POSTS_URL}?id=eq.${id}`, { headers });
 
         if (!response.ok) {
           throw new Error(`HTTP error: ${response.status}`);
@@ -46,7 +46,7 @@ export default function PostDetailPage() {
     setError("");
 
     try {
-      const response = await fetch(`${URL}?id=eq.${id}`, {
+      const response = await fetch(`${POSTS_URL}?id=eq.${id}`, {
         method: "DELETE",
         headers,
       });
