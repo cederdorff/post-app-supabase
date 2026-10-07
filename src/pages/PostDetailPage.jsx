@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 
-const POSTS_URL = import.meta.env.VITE_SUPABASE_URL + "/posts";
+const POSTS_URL = `${import.meta.env.VITE_SUPABASE_URL}/posts`;
 const headers = {
   apikey: import.meta.env.VITE_SUPABASE_APIKEY,
   "Content-Type": "application/json",

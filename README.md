@@ -163,7 +163,7 @@ VITE_SUPABASE_APIKEY=din_sb_publishable_key
 Bemærk, at `VITE_SUPABASE_URL` slutter på `/rest/v1` uden tabelnavn. I koden tilføjes `/posts`, fx:
 
 ```jsx
-const POSTS_URL = import.meta.env.VITE_SUPABASE_URL + "/posts";
+const POSTS_URL = `${import.meta.env.VITE_SUPABASE_URL}/posts`;
 ```
 
 ## 3. Få overblik over projektet
@@ -683,7 +683,7 @@ Du kan fx lave en fil som:
 med noget i den her stil:
 
 ```jsx
-export const POSTS_URL = import.meta.env.VITE_SUPABASE_URL + "/posts";
+export const POSTS_URL = `${import.meta.env.VITE_SUPABASE_URL}/posts`;
 
 export const headers = {
   apikey: import.meta.env.VITE_SUPABASE_APIKEY,
