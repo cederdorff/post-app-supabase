@@ -7,6 +7,8 @@ on:
 
 jobs:
   ping:
+    # Variablerne ligger i samme environment som deploy-workflowet
+    environment: github-pages-deployment
     runs-on: ubuntu-latest
     steps:
       # VITE_SUPABASE_URL ender på /rest/v1, så tabellen /posts tilføjes her
