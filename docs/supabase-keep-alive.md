@@ -97,13 +97,15 @@ Det henter højst én række, men det er en rigtig forespørgsel mod databasen, 
 
 Har du deployet din app til GitHub Pages, ligger dine Supabase-værdier allerede på GitHub. Workflowet bruger de samme:
 
-1. Gå til **Settings** -> **Environments** -> `github-pages-deployment`
+1. Gå til **Settings** -> **Environments** -> dit deploy-environment, fx `github-pages-deployment`
 2. Tjek at disse to ligger under **Environment variables**:
 
 | Variabel               | Eksempel                                     |
 | ---------------------- | -------------------------------------------- |
 | `VITE_SUPABASE_URL`    | `https://dit-project-id.supabase.co/rest/v1` |
 | `VITE_SUPABASE_APIKEY` | `sb_publishable_...`                         |
+
+> **Hvad hedder dit environment?** Kig efter `environment:` -> `name:` i dit deploy-workflow i `.github/workflows/`. I kursusprojekterne hedder det `github-pages-deployment`, men bruger du GitHubs standard-workflow, hedder det typisk `github-pages`.
 
 > **Har du ikke deployet til GitHub Pages?** Så læg værdierne fra din `.env` fil under **Settings** -> **Secrets and variables** -> **Actions** -> fanen **Variables** i stedet. Husk så at slette `environment:`-linjen i workflowet (se 3.2).
 
@@ -140,9 +142,11 @@ jobs:
             -H "apikey: ${{ vars.VITE_SUPABASE_APIKEY }}"
 ```
 
-Tilpas tabelnavnet:
+Tilpas til dit projekt:
 
+- **`environment:`** Skriv navnet på dit deploy-environment, hvis det ikke hedder `github-pages-deployment`.
 - **`PING_TABLE:`** Skriv navnet på en tabel, der findes i **dit** projekt, fx `posts`, `users` eller `products`.
+- **Variabelnavne:** Hedder dine variabler noget andet, fx `VITE_SUPABASE_ANON_KEY`, så ret `vars.VITE_SUPABASE_URL` og `vars.VITE_SUPABASE_APIKEY`, så de matcher.
 
 > **Har du ikke deployet til GitHub Pages?** Så slet linjen `environment: github-pages-deployment` og kommentaren over den. Så henter workflowet variablerne fra repository variables i stedet.
 
@@ -188,7 +192,7 @@ Bliver kørslen rød ❌, så klik på den og åbn trinnet **Ping Supabase**:
 | --------------------------------------- | ------------------------------------------------------------------------------- |
 | `404`                                   | Tabellen findes ikke. Ret `PING_TABLE`                                          |
 | `401`                                   | Tjek din URL og API key, og at variablerne ligger det rigtige sted              |
-| `URL rejected: No host part in the URL` | Variablerne kan ikke findes. Tjek navnene, og om `environment:` passer          |
+| `URL rejected: No host part in the URL` | Variablerne kan ikke findes. Tjek navnene, og om `environment:` passer. Ligger de som secrets, så skriv `secrets.` i stedet for `vars.` |
 | Workflowet vises ikke under Actions     | Filen skal ligge i `.github/workflows/` og være pushet til `main`               |
 
 > **Tip:** Har tabellen RLS uden en policy til læsning, bliver kørslen stadig grøn (med en tom liste). Det er fint, for forespørgslen rammer stadig databasen.
