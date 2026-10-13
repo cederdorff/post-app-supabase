@@ -2,7 +2,7 @@ name: Supabase keep alive
 
 on:
   schedule:
-    - cron: "0 6 * * 1,4" # mandag og torsdag kl. 06 (UTC)
+    - cron: "0 6 * * *" # hver dag kl. 06 (UTC)
   workflow_dispatch: # gør det muligt at køre den manuelt
 
 jobs:

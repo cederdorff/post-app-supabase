@@ -2,7 +2,7 @@
 
 Gratis Supabase-projekter bliver sat på pause, hvis databasen ikke bliver brugt i ca. en uge. Så holder din app op med at virke, indtil du selv starter projektet igen. Det er træls lige før en aflevering eller eksamen.
 
-I denne guide sætter du et lille GitHub Actions workflow op, som automatisk bruger din database to gange om ugen. Guiden virker til alle dine projekter, der bruger Supabase og ligger på GitHub.
+I denne guide sætter du et lille GitHub Actions workflow op, som automatisk bruger din database hver dag. Guiden virker til alle dine projekter, der bruger Supabase og ligger på GitHub.
 
 ## Indhold
 
@@ -70,7 +70,7 @@ on:
   push:
     branches: ["main"] # når der bliver pushet til main
   schedule:
-    - cron: "0 6 * * 1,4" # på faste tidspunkter
+    - cron: "0 6 * * *" # på faste tidspunkter
   workflow_dispatch: # manuelt med en knap under Actions
 ```
 
@@ -83,10 +83,10 @@ on:
 │ │ │ ┌─── måned (1-12)
 │ │ │ │ ┌─ ugedag (0-6, søndag = 0)
 │ │ │ │ │
-0 6 * * 1,4
+0 6 * * *
 ```
 
-`0 6 * * 1,4` betyder: kl. 06:00 UTC hver mandag (`1`) og torsdag (`4`). `*` betyder "alle". Du kan afprøve cron-udtryk på [crontab.guru](https://crontab.guru).
+`0 6 * * *` betyder: kl. 06:00 UTC hver dag. `*` betyder "alle". Vil du fx kun køre mandag (`1`) og torsdag (`4`), skriver du `0 6 * * 1,4`. Du kan afprøve cron-udtryk på [crontab.guru](https://crontab.guru).
 
 ## 2. Sådan virker keep-alive
 
@@ -101,7 +101,7 @@ sequenceDiagram
   participant GH as GitHub Actions
   participant SB as Supabase API
   participant DB as Database
-  Note over GH: Mandag og torsdag kl. 06 (cron)
+  Note over GH: Hver dag kl. 06 (cron)
   GH->>SB: GET /rest/v1/posts?select=*&limit=1
   SB->>DB: Hent én række fra posts
   DB-->>SB: Række (eller tom liste)
@@ -109,7 +109,7 @@ sequenceDiagram
   Note over GH: Kørslen bliver grøn ✅
 ```
 
-Det henter højst én række, men det er en rigtig forespørgsel mod databasen, så Supabase kan se, at projektet bliver brugt. Med mandag og torsdag går der højst 4 dage mellem to ping.
+Det henter højst én række, men det er en rigtig forespørgsel mod databasen, så Supabase kan se, at projektet bliver brugt. Det kører hver dag, fordi Supabase vil se jævn aktivitet. Med kun to ping om ugen kan projektet stadig blive markeret som inaktivt.
 
 ## 3. Opsætning trin for trin
 
@@ -147,7 +147,7 @@ name: Supabase keep alive
 
 on:
   schedule:
-    - cron: "0 6 * * 1,4" # mandag og torsdag kl. 06 (UTC)
+    - cron: "0 6 * * *" # hver dag kl. 06 (UTC)
   workflow_dispatch: # gør det muligt at køre den manuelt
 
 jobs:
@@ -160,9 +160,10 @@ jobs:
       PING_TABLE: posts
     steps:
       # VITE_SUPABASE_URL ender på /rest/v1, så tabelnavnet tilføjes her
+      # Svaret og HTTP-statuskoden skrives i loggen
       - name: Ping Supabase
         run: |
-          curl --fail -sS -o /dev/null \
+          curl --fail-with-body -sS -w "\nHTTP %{http_code}\n" \
             "${{ vars.VITE_SUPABASE_URL }}/$PING_TABLE?select=*&limit=1" \
             -H "apikey: ${{ vars.VITE_SUPABASE_APIKEY }}"
 ```
@@ -178,13 +179,14 @@ Tilpas til dit projekt:
 
 | Linje                    | Betydning                                                                |
 | ------------------------ | ------------------------------------------------------------------------ |
-| `schedule` + `cron`      | Kører workflowet mandag og torsdag kl. 06 UTC                            |
+| `schedule` + `cron`      | Kører workflowet hver dag kl. 06 UTC                                     |
 | `workflow_dispatch`      | Giver en **Run workflow**-knap, så du selv kan teste det                 |
 | `environment`            | Hvilket environment variablerne skal hentes fra                          |
 | `runs-on: ubuntu-latest` | Jobbet kører på en Linux-maskine i skyen                                 |
 | `curl`                   | Laver et HTTP-request fra kommandolinjen, ligesom `fetch`                |
-| `--fail`                 | Gør workflowet rødt, hvis Supabase svarer med en fejl                    |
-| `-sS -o /dev/null`       | Skjuler svaret, men viser fejlbeskeder                                   |
+| `--fail-with-body`       | Gør workflowet rødt, hvis Supabase svarer med en fejl, og viser fejlen   |
+| `-sS`                    | Skjuler curls statuslinje, men viser fejlbeskeder                        |
+| `-w "\nHTTP %{http_code}\n"` | Skriver HTTP-statuskoden i loggen efter svaret                     |
 | `-H "apikey: ..."`       | Sender din API key som header, ligesom `headers` i `fetch`               |
 
 ### 3.4 Commit og push
@@ -199,7 +201,7 @@ git push
 
 ## 4. Test at det virker
 
-Du behøver ikke vente til mandag:
+Du behøver ikke vente til i morgen:
 
 1. Gå til fanen **Actions** i dit repository
 2. Vælg **Supabase keep alive** i listen til venstre
@@ -207,11 +209,11 @@ Du behøver ikke vente til mandag:
 
 ![Run workflow-knappen under Actions -> Supabase keep alive](images/run-workflow.webp)
 
-4. Tjek at kørslen bliver grøn ✅
+4. Tjek at kørslen bliver grøn ✅. Åbn trinnet **Ping Supabase** for at se svaret fra Supabase og `HTTP 200`
 
 ![En grøn kørsel af Supabase keep alive](images/workflow-success.webp)
 
-Fra nu af kører det automatisk mandag og torsdag.
+Fra nu af kører det automatisk hver dag.
 
 ## 5. Fejlfinding
 
@@ -229,5 +231,5 @@ Bliver kørslen rød ❌, så klik på den og åbn trinnet **Ping Supabase**:
 ## 6. Godt at vide
 
 - **60 dage uden commits:** Så slår GitHub planlagte workflows fra, og du får en mail. Slå det til igen under **Actions** -> workflowet -> **Enable workflow**.
-- **UTC og forsinkelser:** `0 6` er kl. 07 dansk vintertid og kl. 08 sommertid. Når GitHub har travlt, kan kørsler blive forsinket, men med to ping om ugen betyder det ikke noget.
+- **UTC og forsinkelser:** `0 6` er kl. 07 dansk vintertid og kl. 08 sommertid. Når GitHub har travlt, kan kørsler blive forsinket, og en enkelt kørsel kan blive sprunget over. Med et ping hver dag betyder det ikke noget.
 - **Allerede sat på pause?** Så hjælper workflowet ikke. Start projektet igen på [supabase.com/dashboard](https://supabase.com/dashboard) med **Restore project**.

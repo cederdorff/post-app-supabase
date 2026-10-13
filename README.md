@@ -746,7 +746,7 @@ Brug de samme værdier som i din `.env` fil. Husk, at URL'en slutter på `/rest/
 
 Gratis Supabase-projekter bliver sat på pause, hvis databasen ikke bliver brugt i ca. en uge. Så holder din app op med at virke, indtil du starter projektet igen i Supabase.
 
-Projektet har et workflow, der forhindrer det: `.github/workflows/supabase-keep-alive.yml`. Det henter én række fra tabellen `posts` mandag og torsdag og bruger de samme to variabler, som du tilføjede i 10.3.
+Projektet har et workflow, der forhindrer det: `.github/workflows/supabase-keep-alive.yml`. Det henter én række fra tabellen `posts` hver dag og bruger de samme to variabler, som du tilføjede i 10.3.
 
 Test at det virker:
 
