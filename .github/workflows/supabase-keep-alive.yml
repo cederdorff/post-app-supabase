@@ -15,8 +15,9 @@ jobs:
       PING_TABLE: posts
     steps:
       # VITE_SUPABASE_URL ender på /rest/v1, så tabelnavnet tilføjes her
+      # Svaret og HTTP-statuskoden skrives i loggen
       - name: Ping Supabase
         run: |
-          curl --fail -sS -o /dev/null \
+          curl --fail-with-body -sS -w "\nHTTP %{http_code}\n" \
             "${{ vars.VITE_SUPABASE_URL }}/$PING_TABLE?select=*&limit=1" \
             -H "apikey: ${{ vars.VITE_SUPABASE_APIKEY }}"
